@@ -1,5 +1,7 @@
-name: Ansible-Example
+name: Ansible Example
 version: v1
+iteration: 1
+description: Blueprint with an Ansible Example
 inputs: {}
 resources:
   Cloud_Ansible_1:
