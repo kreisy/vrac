@@ -1,6 +1,5 @@
 name: Ansible-Example
 version: v1
-formatVersion: 1
 inputs: {}
 resources:
   Cloud_Ansible_1:
