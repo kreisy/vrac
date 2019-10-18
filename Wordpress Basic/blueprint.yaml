@@ -1,5 +1,5 @@
 name: Wordpress Basic
-version: v2
+version: v3
 iteration: 1
 description: More Complex BP with External Storage
 inputs:
@@ -9,6 +9,7 @@ inputs:
       - aws-env
       - azure-env
       - google-env
+      - vsphere-env
     default: aws-env
     title: Environment
     description: Target Environment
