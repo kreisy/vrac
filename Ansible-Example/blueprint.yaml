@@ -1,5 +1,5 @@
 name: Ansible Example
-version: v1
+version: v2
 formatVersion: 1
 inputs: {}
 resources:
@@ -18,6 +18,6 @@ resources:
     type: Cloud.Machine
     properties:
       image: centos
-      flavor: small
+      flavor: medium
       constraints:
         - tag: vsphere-env
