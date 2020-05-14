@@ -1,5 +1,5 @@
 name: Wordpress Basic
-version: v3
+version: v4
 iteration: 1
 description: More Complex BP with External Storage
 inputs:
@@ -61,7 +61,8 @@ resources:
       constraints:
         - tag: '${input.env}'
       networks:
-        - name: '${WP-Network.name}'
+        - network: '${resource["WP-Network"].id}'
+          assignment: dynamic
       remoteAccess:
         authentication: usernamePassword
         username: '${input.username}'
@@ -90,7 +91,8 @@ resources:
         - tag: '${input.env}'
       flavor: '${input.size}'
       networks:
-        - name: '${WP-Network.name}'
+        - network: '${resource["WP-Network"].id}'
+          assignment: dynamic
       cloudConfig: |
         #cloud-config
         repo_update: true
