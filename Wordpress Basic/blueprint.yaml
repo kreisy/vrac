@@ -1,16 +1,17 @@
 name: Wordpress Basic
-version: v4
+version: v5
 iteration: 1
 description: More Complex BP with External Storage
 inputs:
   env:
     type: string
     enum:
-      - aws-env
-      - azure-env
-      - google-env
-      - vsphere-env
-    default: aws-env
+      - 'env:aws'
+      - 'env:azure'
+      - 'env:google'
+      - 'env:vsphere'
+      - 'env:vmc'
+    default: 'env:aws'
     title: Environment
     description: Target Environment
   size:
@@ -18,6 +19,7 @@ inputs:
     enum:
       - small
       - medium
+    default: small
     description: Size of Nodes
     title: Database Tier Size
   username:
