@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: titofe-$${ID}
+  name: tito-kube1
   labels:
     name: tito-fe
     version: "latest"
     app: tito
     tier: frontend
     stage: prod
-    ID: $${DBIP}
+    ID: 172.16.107.101
 spec:
   replicas: 1
   selector:
@@ -24,7 +24,7 @@ spec:
         type: tito-fe
         version: v1
         tier: frontend
-        ID: $${DBIP}
+        ID: 172.16.107.101
     spec:
       containers:
         - name: tito
@@ -36,7 +36,7 @@ spec:
           - name: TITO_VERSION
             value: V2
           - name: TITO_SQL_SERVICE_SERVICE_HOST
-            value: $${DBIP}
+            value: 172.16.107.101
           - name: PROXY_NAME
             value: wavefront-proxy.default.svc.cluster.local
           - name: PROXY_PORT
@@ -54,7 +54,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: titofe-service-$${ID}
+  name: tito-kube1
   labels:
     app: tito
     tier: frontend
@@ -66,5 +66,5 @@ spec:
   selector:                # key/value, label permettant de definir le pod cible (doit etre danslabels du pod)
     type: tito-fe
     tier: frontend
-    ID: $${DBIP}
+    ID: 172.16.107.101
   type: LoadBalancer
