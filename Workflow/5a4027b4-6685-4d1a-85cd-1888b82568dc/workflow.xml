@@ -1,0 +1,225 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="5a4027b4-6685-4d1a-85cd-1888b82568dc" version="0.0.10" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Add NSX Firewall Rule (VMs)]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="disabled" type="boolean"/>
+    <param name="logged" type="boolean"/>
+    <param name="ruleName" type="string"/>
+    <param name="ruleAction" type="string"/>
+    <param name="sourceVMs" type="Array/VC:VirtualMachine"/>
+    <param name="destinationVMs" type="Array/VC:VirtualMachine"/>
+    <param name="services" type="Array/string"/>
+    <param name="serviceGroups" type="Array/string"/>
+    <param name="sectionName" type="string"/>
+    <param name="restHost" type="REST:RESTHost"/>
+  </input>
+  <output>
+    <param name="ruleId" type="string"/>
+  </output>
+  <attrib name="destinationIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="sourceIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="applicationIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="generationNumber" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="sectionId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="applicationGroupIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Create firewall rule]]></display-name>
+    <script encoded="false"><![CDATA[var ruleXml = new XML('<rule><sources/><destinations/><services/></rule>');
+
+if (disabled == true) ruleXml.@disabled = "true";
+else ruleXml.@disabled = "false";
+
+if (logged == true) ruleXml.@logged = "true";
+else ruleXml.@logged = "false";
+
+// ruleXml.@managedBy = "NSX Service Composer";
+
+ruleXml.name = ruleName;
+ruleXml.action = ruleAction;
+ruleXml.sectionId = sectionId;
+ruleXml.sources.@excluded = "false";
+for each (var sourceId in sourceIds) {
+	var sourceXml = new XML("<source><value/><type/></source>");
+	sourceXml.value = sourceId;
+	sourceXml.type = "VirtualMachine";
+	ruleXml.sources.appendChild(sourceXml);
+}
+ruleXml.destinations.@excluded = "false";
+for each (var destinationId in destinationIds) {
+	var destinationXml = new XML("<destination><value/><type/></destination>");
+	destinationXml.value = destinationId;
+	destinationXml.type = "VirtualMachine";
+	ruleXml.destinations.appendChild(destinationXml);
+}
+for each (var applicationId in applicationIds) {
+	var serviceXml = new XML("<service><value/></service>");
+	serviceXml.value = applicationId;
+	ruleXml.services.appendChild(serviceXml);
+}
+
+for each (var applicationGroupId in applicationGroupIds) {
+	var serviceXml = new XML("<service><value/></service>");
+	serviceXml.value = applicationGroupId;
+	ruleXml.services.appendChild(serviceXml);
+}
+var request = restHost.createRequest("POST", "api/4.0/firewall/globalroot-0/config/layer3sections/" + sectionId + "/rules", ruleXml.toString());
+request.contentType = "application/xml";
+request.setHeader("if-Match", generationNumber);
+System.log("Request URL: " + request.fullUrl);
+System.log(ruleXml.toString());
+var response = request.execute();
+if(response.statusCode != 201) throw("Could not create firewall rule ! : " + response.statusCode + "\n" + response.contentAsString);
+ruleXml = new XML(response.contentAsString);
+ruleId = ruleXml.@id.toString();
+
+
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="sectionId" type="string" export-name="sectionId"/>
+      <bind name="generationNumber" type="string" export-name="generationNumber"/>
+      <bind name="disabled" type="boolean" export-name="disabled"/>
+      <bind name="logged" type="boolean" export-name="logged"/>
+      <bind name="ruleName" type="string" export-name="ruleName"/>
+      <bind name="ruleAction" type="string" export-name="ruleAction"/>
+      <bind name="applicationIds" type="Array/string" export-name="applicationIds"/>
+      <bind name="destinationIds" type="Array/string" export-name="destinationIds"/>
+      <bind name="sourceIds" type="Array/string" export-name="sourceIds"/>
+      <bind name="applicationGroupIds" type="Array/string" export-name="applicationGroupIds"/>
+    </in-binding>
+    <out-binding>
+      <bind name="ruleId" type="string" export-name="ruleId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item6" type="task">
+    <display-name><![CDATA[Get moRef from VMs]]></display-name>
+    <script encoded="false"><![CDATA[destinationIds = new Array();
+sourceIds = new Array();
+
+for each (sourceVM in sourceVMs)
+{
+	sourceIds.push(sourceVM.reference.value);
+}
+
+for each (destinationVM in destinationVMs)
+{
+	destinationIds.push(destinationVM.reference.value);
+}
+
+]]></script>
+    <in-binding>
+      <bind name="sourceVMs" type="Array/VC:VirtualMachine" export-name="sourceVMs"/>
+      <bind name="destinationVMs" type="Array/VC:VirtualMachine" export-name="destinationVMs"/>
+    </in-binding>
+    <out-binding>
+      <bind name="sourceIds" type="Array/string" export-name="sourceIds"/>
+      <bind name="destinationIds" type="Array/string" export-name="destinationIds"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item5" type="task" script-module="com.vmware.se.nsx.fw/getFwSectionIdByName">
+    <display-name><![CDATA[getFwSectionIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwSectionIdByName(restHost,sectionName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="sectionId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item1" type="task" script-module="com.vmware.se.nsx.fw/getFwSectionGenerationByName">
+    <display-name><![CDATA[getFwSectionGenerationByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwSectionGenerationByName(restHost,sectionName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="generationNumber"/>
+    </out-binding>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item3" type="task" script-module="com.vmware.se.nsx.fw/getFwApplicationIdsByName">
+    <display-name><![CDATA[getFwApplicationIdsByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwApplicationIdsByName(applicationNames,restHost) ;]]></script>
+    <in-binding>
+      <bind name="applicationNames" type="Array/string" export-name="services"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="applicationIds"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="task" script-module="com.vmware.se.nsx.fw/getFwApplicationGroupsIdsByName">
+    <display-name><![CDATA[getFwApplicationGroupsIdsByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwApplicationGroupsIdsByName(applicationNames,restHost) ;]]></script>
+    <in-binding>
+      <bind name="applicationNames" type="Array/string" export-name="serviceGroups"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="applicationGroupIds"/>
+    </out-binding>
+    <position y="55.90909090909091" x="485.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="sectionName">
+      <desc><![CDATA[sectionName]]></desc>
+      <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwSectionsList").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="ruleName">
+      <desc><![CDATA[ruleName]]></desc>
+    </p-param>
+    <p-param name="ruleAction">
+      <desc><![CDATA[ruleAction]]></desc>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#allow#;#string#deny#}#]]></p-qual>
+    </p-param>
+    <p-param name="sourceVMs">
+      <desc><![CDATA[sourceVMs]]></desc>
+    </p-param>
+    <p-param name="destinationVMs">
+      <desc><![CDATA[destinationVMs]]></desc>
+    </p-param>
+    <p-param name="services">
+      <desc><![CDATA[services]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsList").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="serviceGroups">
+      <desc><![CDATA[serviceGroups]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsGroupsList").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="disabled">
+      <desc><![CDATA[disabled]]></desc>
+    </p-param>
+    <p-param name="logged">
+      <desc><![CDATA[logged]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

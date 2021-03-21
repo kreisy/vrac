@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="58d99978-3ca3-4ff3-8390-809f893b4169" version="1.0.0">
+  <display-name><![CDATA[CustomScripts]]></display-name>
+  <atts>
+    <att name="7316a66d-96d2-46ed-a33e-f481fd5131a0" type="Properties" read-only="false"/>
+    <att name="99482da2-45c3-4e9c-b91f-a1b8facb6c87" type="Properties" read-only="false"/>
+    <att name="6769455c-d862-4513-bc85-694c1e2a53fe" type="Properties" read-only="false"/>
+    <att name="8181ce09-ac05-4689-8093-210d40b56af9" type="Properties" read-only="false"/>
+  </atts>
+</config-element>

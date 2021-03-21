@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item4" object-name="workflow:name=generic" id="a6958d10-678b-48f8-a6a3-e7dcb9ee3a04" version="0.0.11" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create _ update many properties on Build Profile]]></display-name>
+  <position y="27.227272727272727" x="225.0"/>
+  <input>
+    <param name="host" type="vCAC:VCACHost">
+      <description><![CDATA[vCAC Host]]></description>
+    </param>
+    <param name="buildProfileName" type="string">
+      <description><![CDATA[Build Profile Name]]></description>
+    </param>
+    <param name="propertyNames" type="Array/string"/>
+    <param name="propertyValues" type="Array/string"/>
+    <param name="propertyIsHidden" type="boolean">
+      <description><![CDATA[Property 'isHidden' flag]]></description>
+    </param>
+    <param name="propertyIsRuntime" type="boolean">
+      <description><![CDATA[Property 'isRuntime' flag]]></description>
+    </param>
+    <param name="propertyIsEncrypted" type="boolean">
+      <description><![CDATA[Property 'isEncrypted' flag]]></description>
+    </param>
+    <param name="doNotUpdate" type="boolean">
+      <description><![CDATA[Update flag]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="propertyEntities" type="Array/vCAC:Entity"/>
+  </output>
+  <attrib name="buildProfileEntity" type="vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Build Profile entity to create/update properties on]]></description>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="propertyName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Property name]]></description>
+  </attrib>
+  <attrib name="propertyValue" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Property value]]></description>
+  </attrib>
+  <attrib name="counter" type="number" read-only="false">
+    <value encoded="n"><![CDATA[0.0]]></value>
+  </attrib>
+  <attrib name="propertyEntity" type="vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Updated vCAC entity]]></description>
+  </attrib>
+  <attrib name="propertyEntitiesAttr" type="Array/vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item6" out-name="item9" type="task" script-module="com.vmware.pso.vcac/addUpdatePropertyFromGlobalProfileEntity">
+    <display-name><![CDATA[addUpdatePropertyFromGlobalProfileEntity]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.vcac").addUpdatePropertyFromGlobalProfileEntity(host,globalProfileEntity,propertyName,propertyValue,propertyIsHidden,propertyIsRuntime,propertyIsEncrypted,doNotUpdate) ;]]></script>
+    <in-binding>
+      <bind name="host" type="vCAC:VCACHost" export-name="host"/>
+      <bind name="propertyName" type="string" export-name="propertyName"/>
+      <bind name="propertyValue" type="string" export-name="propertyValue"/>
+      <bind name="propertyIsHidden" type="boolean" export-name="propertyIsHidden"/>
+      <bind name="propertyIsRuntime" type="boolean" export-name="propertyIsRuntime"/>
+      <bind name="propertyIsEncrypted" type="boolean" export-name="propertyIsEncrypted"/>
+      <bind name="doNotUpdate" type="boolean" export-name="doNotUpdate"/>
+      <bind name="globalProfileEntity" type="vCAC:Entity" export-name="buildProfileEntity"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:Entity" export-name="propertyEntity"/>
+    </out-binding>
+    <position y="209.95454545454544" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="task">
+    <display-name><![CDATA[Get Next]]></display-name>
+    <script encoded="false"><![CDATA[propertyName = propertyNames[counter];
+propertyValue = propertyValues[counter];]]></script>
+    <in-binding>
+      <bind name="propertyNames" type="Array/string" export-name="propertyNames"/>
+      <bind name="propertyValues" type="Array/string" export-name="propertyValues"/>
+      <bind name="counter" type="number" export-name="counter"/>
+    </in-binding>
+    <out-binding>
+      <bind name="propertyName" type="string" export-name="propertyName"/>
+      <bind name="propertyValue" type="string" export-name="propertyValue"/>
+    </out-binding>
+    <position y="155.4090909090909" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item5" type="custom-condition" alt-out-name="item0">
+    <display-name><![CDATA[Any More?]]></display-name>
+    <script encoded="false"><![CDATA[if (propertyNames.length > counter) {
+	return true;
+} else {
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="propertyNames" type="Array/string" export-name="propertyNames"/>
+      <bind name="counter" type="number" export-name="counter"/>
+    </in-binding>
+    <position y="145.4090909090909" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item8" type="end" end-mode="0">
+    <position y="209.04545454545453" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item7" type="task">
+    <display-name><![CDATA[Increment Counter]]></display-name>
+    <script encoded="false"><![CDATA[counter = counter + 1;
+propertyEntitiesAttr.push(propertyEntity);]]></script>
+    <in-binding>
+      <bind name="counter" type="number" export-name="counter"/>
+      <bind name="propertyEntitiesAttr" type="Array/vCAC:Entity" export-name="propertyEntitiesAttr"/>
+      <bind name="propertyEntity" type="vCAC:Entity" export-name="propertyEntity"/>
+    </in-binding>
+    <out-binding>
+      <bind name="propertyEntitiesAttr" type="Array/vCAC:Entity" export-name="propertyEntitiesAttr"/>
+      <bind name="counter" type="number" export-name="counter"/>
+    </out-binding>
+    <position y="209.95454545454544" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item8" type="task">
+    <display-name><![CDATA[Set Outputs]]></display-name>
+    <script encoded="false"><![CDATA[propertyEntities = propertyEntitiesAttr;]]></script>
+    <in-binding>
+      <bind name="propertyEntitiesAttr" type="Array/vCAC:Entity" export-name="propertyEntitiesAttr"/>
+    </in-binding>
+    <out-binding>
+      <bind name="propertyEntities" type="Array/vCAC:Entity" export-name="propertyEntities"/>
+    </out-binding>
+    <position y="155.4090909090909" x="444.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item7" type="task">
+    <display-name><![CDATA[Init]]></display-name>
+    <script encoded="false"><![CDATA[counter = 0;
+propertyEntitiesAttr = new Array();]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="counter" type="number" export-name="counter"/>
+      <bind name="propertyEntitiesAttr" type="Array/vCAC:Entity" export-name="propertyEntitiesAttr"/>
+    </out-binding>
+    <position y="91.77272727272727" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item3" catch-name="item1" throw-bind-name="errorCode" type="task" script-module="com.vmware.pso.vcac/getBuildProfileByName">
+    <display-name><![CDATA[getBuildProfileByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.vcac").getBuildProfileByName(buildProfileName,host) ;]]></script>
+    <in-binding>
+      <bind name="buildProfileName" type="string" export-name="buildProfileName"/>
+      <bind name="host" type="vCAC:VCACHost" export-name="host"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:Entity" export-name="buildProfileEntity"/>
+    </out-binding>
+    <position y="37.22727272727273" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item1" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="27.227272727272727" x="505.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+    <p-param name="buildProfileName">
+      <desc><![CDATA[Build Profile Name]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.pso.vcac","getBuildProfileNames").call( #host )]]></p-qual>
+    </p-param>
+    <p-param name="propertyNames">
+      <desc><![CDATA[propertyNames]]></desc>
+    </p-param>
+    <p-param name="propertyValues">
+      <desc><![CDATA[propertyValues]]></desc>
+    </p-param>
+    <p-param name="propertyIsHidden">
+      <desc><![CDATA[propertyIsHidden]]></desc>
+    </p-param>
+    <p-param name="propertyIsRuntime">
+      <desc><![CDATA[propertyIsRuntime]]></desc>
+    </p-param>
+    <p-param name="propertyIsEncrypted">
+      <desc><![CDATA[propertyIsEncrypted]]></desc>
+    </p-param>
+    <p-param name="doNotUpdate">
+      <desc><![CDATA[doNotUpdate]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

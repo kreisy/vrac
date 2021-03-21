@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="cbb32e06-9367-4daf-89fc-51dd65308f29" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[FLEX]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="SAPSID" type="string"/>
+    <param name="OS" type="string"/>
+    <param name="Size" type="string"/>
+  </input>
+  <attrib name="OSX" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#Windows2012#;#string#RedHat#;#string#SuSE#}#]]></value>
+  </attrib>
+  <attrib name="Sizex" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#small#;#string#medium#;#string#large#}#]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[System.log("SID" + SAPSID);]]></script>
+    <in-binding>
+      <bind name="SAPSID" type="string" export-name="SAPSID"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="SAPSID">
+      <desc><![CDATA[SAPSID]]></desc>
+    </p-param>
+    <p-param name="OS">
+      <desc><![CDATA[OS]]></desc>
+      <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#OSX]]></p-qual>
+    </p-param>
+    <p-step>
+      <title><![CDATA[New step]]></title>
+      <p-group>
+        <title><![CDATA[New group]]></title>
+        <p-param name="Size">
+          <desc><![CDATA[Size]]></desc>
+          <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#Sizex]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

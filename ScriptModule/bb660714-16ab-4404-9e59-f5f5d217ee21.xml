@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwIpSetList" result-type="Array/string" api-version="6.0.0" id="bb660714-16ab-4404-9e59-f5f5d217ee21" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <script encoded="false"><![CDATA[
+var ipSetList = new Array(); 
+var request = restHost.createRequest("GET", "api/2.0/services/ipset/scope/globalroot-0");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not GET IP Sets ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var ipSets = new XML(response.contentAsString);
+
+for each (var ipSet in ipSets.ipset)
+{
+	ipSetList.push(ipSet.name.toString());
+}
+
+return ipSetList;]]></script>
+</dunes-script-module>

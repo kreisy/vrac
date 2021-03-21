@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="deleteFwIpSet" result-type="void" api-version="6.0.0" id="2eb0df8a-1670-4358-a9d1-0a1ec037a17e" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="ipSetId" t="string"/>
+  <param n="force" t="boolean"/>
+  <script encoded="false"><![CDATA[
+var request = restHost.createRequest("DELETE", "/api/2.0/services/ipset/"+ipSetId+"?force="+force);
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not delete FW section ! : " + response.statusCode + "\n" + response.contentAsString);
+
+System.log("Successfuly delete IP Set with ID: " + ipSetId);
+
+
+]]></script>
+</dunes-script-module>

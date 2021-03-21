@@ -15,7 +15,7 @@
         <value encoded="n"></value>
     </attrib>
     <attrib name="name" type="string">
-        <value encoded="n">CASsnapshot</value>
+        <value encoded="n">vRAsnapshot</value>
     </attrib>
     <attrib name="description" type="string">
         <value encoded="n">Super vRA</value>
@@ -28,9 +28,9 @@
         <value encoded="n">false</value>
     </attrib>
     <workflow-item name="item0" type="end" end-mode="0" comparator="0">
-        <position y="45.900001525878906" x="620.0"/>
+        <position y="49.900001525878906" x="613.0"/>
     </workflow-item>
-    <workflow-item name="item1" out-name="item3" type="task" comparator="0">
+    <workflow-item name="item1" out-name="item4" type="task" comparator="0">
         <display-name>log Payload</display-name>
         <script encoded="false">System.log("inputProperties: ");
 System.log(JSON.stringify(inputProperties, null, 2));
@@ -44,22 +44,10 @@ userName =  System.getContext().getParameter("__metadata_userName");</script>
             <bind name="vCenterVM" type="VC:VirtualMachine" export-name="vCenterVM"/>
             <bind name="userName" type="string" export-name="userName"/>
         </out-binding>
-        <position y="55.40909090909091" x="204.5"/>
-    </workflow-item>
-    <workflow-item name="item3" out-name="item4" type="link" linked-workflow-id="b6d9c58d-0506-4b48-996d-e42739ef4ad1" comparator="0">
-        <display-name>SI CAS - Get VM Details</display-name>
-        <in-binding>
-            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
-            <bind name="vCenterVM" type="VC:VirtualMachine" export-name="vCenterVM"/>
-            <bind name="userName" type="string" export-name="userName"/>
-        </in-binding>
-        <out-binding>
-            <bind name="customProperties" type="string" export-name="customProperties"/>
-        </out-binding>
-        <position y="55.40909090909091" x="344.5"/>
+        <position y="60.400001525878906" x="207.0"/>
     </workflow-item>
     <workflow-item name="item4" out-name="item0" type="link" linked-workflow-id="BD80808080808080808080808080808053C180800122528313869552e41805bb1" comparator="0">
-        <display-name>Workflow element</display-name>
+        <display-name>Create Snapshot</display-name>
         <script encoded="false"></script>
         <in-binding>
             <bind name="vm" type="VC:VirtualMachine" export-name="vCenterVM"/>
@@ -72,7 +60,7 @@ userName =  System.getContext().getParameter("__metadata_userName");</script>
             <bind name="snapshot" type="VC:VirtualMachineSnapshot" export-name=""/>
         </out-binding>
         <description> </description>
-        <position y="55.900001525878906" x="467.0"/>
+        <position y="60.900001525878906" x="379.0"/>
     </workflow-item>
     <presentation>
         <p-param name="inputProperties">

@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="ae063a4c-ea52-45d6-8baa-cfaf4e21d4fe" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Delete VCH Endpoint ]]></display-name>
+  <position y="73.18181818181817" x="185.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine"/>
+    <param name="vmUsername" type="string"/>
+    <param name="vmPassword" type="SecureString"/>
+    <param name="vchName" type="string"/>
+    <param name="vCenterUserName" type="string"/>
+    <param name="password" type="SecureString"/>
+    <param name="vCenterIp" type="string"/>
+    <param name="clusterName" type="string"/>
+  </input>
+  <output>
+    <param name="scriptExitCodeOut" type="number"/>
+    <param name="scriptOutputTextOut" type="string"/>
+  </output>
+  <attrib name="scriptConfigurationResource" type="ResourceElement" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/ResourceElement?id='af5aec60-8531-43cd-ba74-fc8dc369a90f'&dunesName='ResourceElement']]></value>
+  </attrib>
+  <attrib name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" read-only="false"/>
+  <attrib name="vchNameVar" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[vchName]]]></value>
+  </attrib>
+  <attrib name="vCenterUserNameVar" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[vCenterUserName]]]></value>
+  </attrib>
+  <attrib name="passwordVar" type="SecureString" read-only="false">
+    <value encoded="n"><![CDATA[10BH5BH70P61I73W73Y77T6FX72P64S5DT9D1F19FJA6B104BNFAF18CT6145B73QBF87C4CPBA1A6F5N2AFDB78XA62486CZD01198BV630DF44U3D53AFCGD9C057AU98E0126TFF229AFNBBF8F2DK6EF44F6G2618D2FOADC0272QB7AE9F0OA91323M6751F50U85ACC17L]]></value>
+  </attrib>
+  <attrib name="vCenterIpVar" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[vCenterIp]]]></value>
+  </attrib>
+  <attrib name="clusterNameVar" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[clusterName]]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="118.63636363636363" x="1024.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="link" linked-workflow-id="24c23d4c-12be-4889-aa66-29b8a450f1cd">
+    <display-name><![CDATA[Run script in VM guest]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="vmUsername" type="string" export-name="vmUsername"/>
+      <bind name="vmPassword" type="SecureString" export-name="vmPassword"/>
+      <bind name="scriptConfigurationResource" type="ResourceElement" export-name="scriptConfigurationResource"/>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </in-binding>
+    <out-binding>
+      <bind name="scriptExitCodeOut" type="number" export-name="scriptExitCodeOut"/>
+      <bind name="scriptOutputTextOut" type="string" export-name="scriptOutputTextOut"/>
+    </out-binding>
+    <description><![CDATA[Run a script in a guest using existing script configurations. Replaces variables in the script. Optionaly copy additional file and replace its variables as well.
+
+If no working directory is specified:
+- it is set to the guest default temp directory if there is a resource file copied
+- it is set to default (c:\windows\system32 for Windows /root for Linux) if there is no resource file copied.]]></description>
+    <position y="128.13636363636363" x="844.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables for vchName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="vchNameVar"/>
+      <bind name="replacingString" type="string" export-name="vchName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="82.68181818181817" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="vCenterUserNameVar"/>
+      <bind name="replacingString" type="string" export-name="vCenterUserName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="128.13636363636363" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item5" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="SecureString" export-name="passwordVar"/>
+      <bind name="replacingString" type="SecureString" export-name="password"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="173.59090909090907" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="vCenterIpVar"/>
+      <bind name="replacingString" type="string" export-name="vCenterIp"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="173.59090909090907" x="385.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item1" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="clusterNameVar"/>
+      <bind name="replacingString" type="string" export-name="clusterName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="128.13636363636363" x="384.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[vm]]></desc>
+    </p-param>
+    <p-param name="vmUsername">
+      <desc><![CDATA[vmUsername]]></desc>
+    </p-param>
+    <p-param name="vmPassword">
+      <desc><![CDATA[vmPassword]]></desc>
+    </p-param>
+    <p-param name="vchName">
+      <desc><![CDATA[vchName]]></desc>
+    </p-param>
+    <p-param name="vCenterUserName">
+      <desc><![CDATA[vCenterUserName]]></desc>
+    </p-param>
+    <p-param name="password">
+      <desc><![CDATA[password]]></desc>
+    </p-param>
+    <p-param name="vCenterIp">
+      <desc><![CDATA[vCenterIp]]></desc>
+    </p-param>
+    <p-param name="clusterName">
+      <desc><![CDATA[clusterName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

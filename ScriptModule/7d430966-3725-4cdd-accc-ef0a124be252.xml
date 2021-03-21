@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="deleteFwRuleInSection" result-type="void" api-version="6.0.0" id="7d430966-3725-4cdd-accc-ef0a124be252" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="sectionId" t="string"/>
+  <param n="ruleId" t="string"/>
+  <param n="generationNumber" t="string"/>
+  <script encoded="false"><![CDATA[
+var request = restHost.createRequest("DELETE", "/api/4.0/firewall/globalroot-0/config/layer3sections/"+sectionId+"/rules/"+ruleId);
+request.contentType = "application/xml";
+request.setHeader("if-Match", generationNumber);
+System.log("Request URL: " + request.fullUrl);
+
+var response = request.execute();
+
+if(response.statusCode != 204) throw("Could not delete FW Rule in Section ! : " + response.statusCode + "\n" + response.contentAsString);
+
+System.log("The Rule: " + ruleId + " was deleted Successfuly");
+
+
+]]></script>
+</dunes-script-module>

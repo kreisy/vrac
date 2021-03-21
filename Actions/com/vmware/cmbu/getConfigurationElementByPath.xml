@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getConfigurationElementByPath" result-type="ConfigurationElement" api-version="6.0.0" id="b37eeb19-e250-44c8-a25d-92ef03eceff2" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cmbu">
+  <param n="configurationElementPath" t="string"><![CDATA[Full path of the Configuration Element]]></param>
+  <script encoded="false"><![CDATA[
+var elementPathArray = configurationElementPath.split("/")
+var elementName = elementPathArray.pop();
+var elementPath = elementPathArray.join("/");
+System.debug("Looking for configuration \""+elementName+"\" in \""+elementPath+"\"");
+var configElementCategory = Server.getConfigurationElementCategoryWithPath(elementPath);
+for each(var configElement in configElementCategory.configurationElements) {
+    System.debug("Found Configuration Element \""+configElement.name+"\"");
+    if(configElement.name == elementName) {
+        return configElement;
+    }
+}]]></script>
+</dunes-script-module>

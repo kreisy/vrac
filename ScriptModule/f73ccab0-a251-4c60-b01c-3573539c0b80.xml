@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSecurityGroupsIdByName" result-type="Array/string" api-version="6.0.0" id="f73ccab0-a251-4c60-b01c-3573539c0b80" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityGroups">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="securityGroupsNames" t="Array/string"/>
+  <script encoded="false"><![CDATA[// restHost = RESTHostManager.getHost("da538741-4481-4cf1-a1ff-1f94b89a3619");
+var securityGroups = new Array(); 
+var request = restHost.createRequest("GET", "/api/2.0/services/securitygroup/scope/globalroot-0");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not get security groups list ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var securityGroupsXml = new XML(response.contentAsString);
+for each (var securityGroupName in securityGroupsNames)
+{
+	for each (var securityGroup in securityGroupsXml.securitygroup)
+	{
+		if (securityGroup.name.toString()==securityGroupName)
+		{
+			securityGroups.push(securityGroup.objectId.toString());
+		}
+	}
+}
+return securityGroups;]]></script>
+</dunes-script-module>

@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="5c93baaa-7323-4bfc-8ef3-be61c493a824" version="0.0.9" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create NSX Firewall Service Group]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="serviceName" type="string"/>
+    <param name="inheritanceAllowed" type="boolean"/>
+    <param name="desc" type="string"/>
+    <param name="services" type="Array/string"/>
+    <param name="restHost" type="REST:RESTHost"/>
+  </input>
+  <attrib name="servicesIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="serviceId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Create FW Application Service]]></display-name>
+    <script encoded="false"><![CDATA[//var serviceXml = new XML('<application><objectId/><type><typeName/></type><description/><name/><revision/><objectTypeName/><element><applicationProtocol/><value/></element></application>');
+var servicesXml = new XML('<applicationGroup></applicationGroup>');
+servicesXml.name=serviceName;
+servicesXml.description=desc;
+servicesXml.inheritanceAllowed=inheritanceAllowed;
+servicesXml.revision="0";
+
+var request = restHost.createRequest("POST", "/api/2.0/services/applicationgroup/globalroot-0", servicesXml.toString());
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+System.log(servicesXml);
+var response = request.execute();
+
+if(response.statusCode != 201) throw("Could not create FW Application Service Group ! : " + response.statusCode + "\n" + response.contentAsString);
+
+responseXml = new XML(response.contentAsString);
+serviceId=responseXml.toString();
+
+
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="serviceName" type="string" export-name="serviceName"/>
+      <bind name="desc" type="string" export-name="desc"/>
+      <bind name="inheritanceAllowed" type="boolean" export-name="inheritanceAllowed"/>
+      <bind name="servicesIds" type="Array/string" export-name="servicesIds"/>
+    </in-binding>
+    <out-binding>
+      <bind name="serviceId" type="string" export-name="serviceId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="task">
+    <display-name><![CDATA[Add members to Service Group]]></display-name>
+    <script encoded="false"><![CDATA[for each ( var serviceId in servicesIds)
+{
+	var request = restHost.createRequest("PUT", "/api/2.0/services/applicationgroup/"+serviceGroupId+"/members/"+serviceId);
+	request.contentType = "application/xml";
+	System.log("Request URL: " + request.fullUrl);
+	var response = request.execute();
+
+	if(response.statusCode != 200) throw("Could not add member to Service Group ! : " + response.statusCode + "\n" + response.contentAsString);
+}
+
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="servicesIds" type="Array/string" export-name="servicesIds"/>
+      <bind name="serviceGroupId" type="string" export-name="serviceId"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="task" script-module="com.vmware.se.nsx.fw/getFwApplicationIdsByName">
+    <display-name><![CDATA[getFwApplicationIdsByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwApplicationIdsByName(applicationNames,restHost) ;]]></script>
+    <in-binding>
+      <bind name="applicationNames" type="Array/string" export-name="services"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="servicesIds"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="serviceName">
+      <desc><![CDATA[serviceName]]></desc>
+    </p-param>
+    <p-param name="inheritanceAllowed">
+      <desc><![CDATA[inheritanceAllowd]]></desc>
+    </p-param>
+    <p-param name="desc">
+      <desc><![CDATA[desc]]></desc>
+    </p-param>
+    <p-param name="services">
+      <desc><![CDATA[services]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsList").call( #restHost )]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

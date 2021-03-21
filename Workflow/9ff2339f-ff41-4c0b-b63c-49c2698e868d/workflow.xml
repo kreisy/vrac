@@ -1,0 +1,260 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="9ff2339f-ff41-4c0b-b63c-49c2698e868d" version="0.0.3" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Extend Linux VM root disk incl filesystem]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual Machine]]></description>
+    </param>
+    <param name="newDiskSize" type="number">
+      <description><![CDATA[New Disk Size (GB)]]></description>
+    </param>
+    <param name="username" type="string">
+      <description><![CDATA[Username]]></description>
+    </param>
+    <param name="Password" type="SecureString">
+      <description><![CDATA[Password]]></description>
+    </param>
+  </input>
+  <attrib name="passwordAuthentication" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+    <description><![CDATA[Sets authentication to password or key file]]></description>
+  </attrib>
+  <attrib name="path" type="Path" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Path to the private key]]></description>
+  </attrib>
+  <attrib name="passphrase" type="SecureString" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Private key pass-phrase]]></description>
+  </attrib>
+  <attrib name="encoding" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[The encoding to be used. Leave this field empty to use the default system encoding. (Example values: "UTF-8", "ISO-8859-1"...)]]></description>
+  </attrib>
+  <attrib name="vmIP" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="cmd" type="string" read-only="false">
+    <value encoded="n"><![CDATA[/root/fdisk-resize.sh]]></value>
+    <description><![CDATA[The SSH command to run]]></description>
+  </attrib>
+  <attrib name="lvresize" type="string" read-only="false">
+    <value encoded="n"><![CDATA[/root/lv-resize.sh]]></value>
+    <description><![CDATA[The SSH command to run]]></description>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="1644.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Expand c-disk]]></display-name>
+    <script encoded="false"><![CDATA[var disk = null;
+var devicename = null;
+var _key = null;
+var devices = vm.config.hardware.device;
+
+for (i in devices) {
+	if (devices[i].deviceInfo.label == "Hard disk 1") {
+	devicename = devices[i].deviceInfo.label;
+	var disk = devices[i];
+	System.log(devicename);
+	System.log(disk.key);
+	newSizeKB = (newDiskSize * 1024 * 1024);
+	System.log(newSizeKB);
+
+
+	var VMspec = new VcVirtualMachineConfigSpec();
+	var diskChange = new Array();
+	
+	var diskConfigSpec = new VcVirtualDeviceConfigSpec();
+	diskConfigSpec.operation = VcVirtualDeviceConfigSpecOperation.edit;
+	diskConfigSpec.device = new VcVirtualDisk();
+	diskConfigSpec.device.controllerKey = disk.controllerKey;
+	diskConfigSpec.device.key = disk.key;
+	diskConfigSpec.device.backing = disk.backing;
+	diskConfigSpec.device.unitNumber = disk.unitNumber;
+	diskConfigSpec.device.capacityInKB = newSizeKB;
+	
+	diskChange.push(diskConfigSpec);
+	VMspec.deviceChange = diskChange;
+	vm.reconfigVM_Task(VMspec);
+	}
+}
+
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="newDiskSize" type="number" export-name="newDiskSize"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" throw-bind-name="errorCode" type="link" linked-workflow-id="90808080808080808080808080808080D28080800120523434428525559a3425f">
+    <display-name><![CDATA[SSH command - fdisk-resize.sh]]></display-name>
+    <in-binding>
+      <bind name="hostNameOrIP" type="string" export-name="vmIP">
+        <description><![CDATA[Hostname or IP address of the SSH host]]></description>
+      </bind>
+      <bind name="username" type="string" export-name="username">
+        <description><![CDATA[Username]]></description>
+      </bind>
+      <bind name="password" type="SecureString" export-name="Password">
+        <description><![CDATA[Password]]></description>
+      </bind>
+      <bind name="cmd" type="string" export-name="cmd">
+        <description><![CDATA[The SSH command to run]]></description>
+      </bind>
+      <bind name="passwordAuthentication" type="boolean" export-name="passwordAuthentication">
+        <description><![CDATA[Sets authentication to password or key file]]></description>
+      </bind>
+      <bind name="path" type="Path" export-name="path">
+        <description><![CDATA[Path to the private key]]></description>
+      </bind>
+      <bind name="passphrase" type="SecureString" export-name="passphrase">
+        <description><![CDATA[Private key pass-phrase]]></description>
+      </bind>
+      <bind name="encoding" type="string" export-name="encoding">
+        <description><![CDATA[The encoding to be used. Leave this field empty to use the default system encoding. (Example values: "UTF-8", "ISO-8859-1"...)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="result" type="number" explicitly-not-bound="true">
+        <description><![CDATA[0 = OK, Negative = Error, Positive = Number of values returned, after error text]]></description>
+      </bind>
+      <bind name="errorText" type="string" explicitly-not-bound="true">
+        <description><![CDATA[Error text, if any]]></description>
+      </bind>
+      <bind name="outputText" type="string" explicitly-not-bound="true">
+        <description><![CDATA[Result of running the SSH command]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Runs an SSH command.]]></description>
+    <position y="55.40909090909091" x="964.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" throw-bind-name="errorCode" type="link" linked-workflow-id="90808080808080808080808080808080D28080800120523434428525559a3425f">
+    <display-name><![CDATA[SSH command - lv-resize.sh]]></display-name>
+    <in-binding>
+      <bind name="hostNameOrIP" type="string" export-name="vmIP">
+        <description><![CDATA[Hostname or IP address of the SSH host]]></description>
+      </bind>
+      <bind name="username" type="string" export-name="username">
+        <description><![CDATA[Username]]></description>
+      </bind>
+      <bind name="password" type="SecureString" export-name="Password">
+        <description><![CDATA[Password]]></description>
+      </bind>
+      <bind name="cmd" type="string" export-name="lvresize">
+        <description><![CDATA[The SSH command to run]]></description>
+      </bind>
+      <bind name="passwordAuthentication" type="boolean" export-name="passwordAuthentication">
+        <description><![CDATA[Sets authentication to password or key file]]></description>
+      </bind>
+      <bind name="path" type="Path" export-name="path">
+        <description><![CDATA[Path to the private key]]></description>
+      </bind>
+      <bind name="passphrase" type="SecureString" export-name="passphrase">
+        <description><![CDATA[Private key pass-phrase]]></description>
+      </bind>
+      <bind name="encoding" type="string" export-name="encoding">
+        <description><![CDATA[The encoding to be used. Leave this field empty to use the default system encoding. (Example values: "UTF-8", "ISO-8859-1"...)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="result" type="number" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[0 = OK, Negative = Error, Positive = Number of values returned, after error text]]></description>
+      </bind>
+      <bind name="errorText" type="string" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[Error text, if any]]></description>
+      </bind>
+      <bind name="outputText" type="string" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[Result of running the SSH command]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Runs an SSH command.]]></description>
+    <position y="55.40909090909091" x="1464.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="link" linked-workflow-id="BD80808080808080808080808080808075C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Shut down guest OS and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to shut down]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Shuts down a guest operating system and waits for the process to complete.]]></description>
+    <position y="55.40909090909091" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="link" linked-workflow-id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to start]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Starts a virtual machine and waits for VMware Tools to start.]]></description>
+    <position y="55.40909090909091" x="1244.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item8" type="link" linked-workflow-id="BD80808080808080808080808080808075C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Shut down guest OS and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to shut down]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Shuts down a guest operating system and waits for the process to complete.]]></description>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item2" type="link" linked-workflow-id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to start]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Starts a virtual machine and waits for VMware Tools to start.]]></description>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item7" type="task">
+    <display-name><![CDATA[getVmIP]]></display-name>
+    <script encoded="false"><![CDATA[var vmIP = vm.guest.ipAddress;
+System.log(vmIP);]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmIP" type="string" export-name="vmIP"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[Virtual Machine]]></desc>
+    </p-param>
+    <p-param name="newDiskSize">
+      <desc><![CDATA[New Disk Size (GB)]]></desc>
+    </p-param>
+    <p-param name="username">
+      <desc><![CDATA[Username]]></desc>
+    </p-param>
+    <p-param name="Password">
+      <desc><![CDATA[Password]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

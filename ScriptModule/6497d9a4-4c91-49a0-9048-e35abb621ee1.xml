@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVCACVMfromCatalogResourceArray" result-type="Array/vCAC:VirtualMachine" api-version="6.0.0" id="6497d9a4-4c91-49a0-9048-e35abb621ee1" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.vcac">
+  <param n="catalogResources" t="Array/vCACCAFE:CatalogResource"/>
+  <script encoded="false"><![CDATA[var vCACVms = new Array();
+for each (var catalogResource in catalogResources) {
+	
+	var resourceType = catalogResource.getResourceTypeRef().getLabel();
+	System.log("resource type: " + resourceType);
+	
+	var providerBinding = catalogResource.getProviderBinding();
+	
+	var bindingId = providerBinding.getBindingId();
+	System.log("provider binding id: "+ bindingId);
+	
+	var provider = providerBinding.getProviderRef();
+	System.log("provider id: "+provider.getId());
+	System.log("provider name: "+provider.getLabel());
+	
+	if( (resourceType == "Virtual Machine") && (provider.getLabel() == "iaas-service") ) {
+		System.log("This is IaaS VM!");
+		var vCacVm = Server.findForType('vCAC:VirtualMachine', bindingId);
+		System.log("IaaS VM ID: "+vCacVm.virtualMachineID);
+		System.log("IaaS VM Name: "+vCacVm.displayName);
+		vCACVms.push(vCacVm);
+	}
+}
+return vCACVms;]]></script>
+</dunes-script-module>

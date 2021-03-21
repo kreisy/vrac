@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="deleteConfigurationElementVariable" result-type="Any" api-version="6.0.0" id="4de8140b-8c97-4d59-8eb8-05524709bceb" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cmbu">
+  <param n="configElement" t="ConfigurationElement"/>
+  <param n="variableName" t="string"/>
+  <script encoded="false"><![CDATA[try {
+    System.log("Remove variable " + variableName);
+	configElement.removeAttributeWithKey(variableName)
+}
+catch (e){
+    System.debug(e.message);
+    return null;
+}
+
+return null;]]></script>
+</dunes-script-module>

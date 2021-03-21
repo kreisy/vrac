@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="33140ea3-8810-40e5-813a-362d5b894676" version="0.0.3" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get Security Policy ID By Name]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="securityPolicyName" type="string"/>
+    <param name="restHost" type="REST:RESTHost"/>
+  </input>
+  <attrib name="securityPolicyID" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task" script-module="com.vmware.se.nsx.securityPolicies/getSecurityPolicyIdByName">
+    <display-name><![CDATA[getSecurityPolicyIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityPolicies").getSecurityPolicyIdByName(restHost,securityPolicyName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityPolicyName" type="string" export-name="securityPolicyName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="securityPolicyID"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="securityPolicyName">
+      <desc><![CDATA[securityPolicyName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

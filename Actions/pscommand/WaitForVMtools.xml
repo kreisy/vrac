@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="WaitForVMtools" result-type="string" api-version="6.0.0" id="e05ec674-d03f-40bb-ab18-ca835d0ec239" version="0.1.0" allowed-operations="evf" category-name="pscommand" memory-limit="512000000" timeout="1200">
+  <runtime><![CDATA[powercli:11-powershell-6.2]]></runtime>
+  <param n="vcfqdn" t="string"/>
+  <param n="vcuser" t="string"/>
+  <param n="vcpassword" t="SecureString"/>
+  <param n="machinename" t="string"/>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    $inputsString = $inputs | ConvertTo-Json -Compress
+    Write-Host "Inputs were $inputsString"
+    $vcfqdn = $inputs.vcfqdn
+    $vcuser = $inputs.vcuser
+    $vcpassword = $inputs.vcpassword
+    $name = $inputs.machinename
+    Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false
+    Connect-VIServer $vcfqdn -User $vcuser -Password $vcpassword
+    $vm = Get-vm -name $name
+    Wait-Tools -VM $vm
+    $output=@{status = 'done'}
+
+    return $output
+}
+]]></script>
+</dunes-script-module>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<description><![CDATA[]]></description>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='76f5ea90-2914-4df1-8ab5-b6c4f33959d3'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='ca7e8736-25f9-4f27-b877-26c483ba61c1'&dunesName='Action'&name='processOutHeaders'&category='com.vmware.library.soap']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='e34b24fe-b00f-4052-aebb-4147da00d243'&dunesName='Action'&name='processOutParameters'&category='com.vmware.library.soap']]></elm>
+<used-plugin name='SOAP' version='1.0.4' />
+</package>

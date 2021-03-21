@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item6" object-name="workflow:name=generic" id="8edf48e9-162e-40d7-91f7-d2458a61da1d" version="0.0.4" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create / update property on virtualMachine Entity]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="vCAC:VCACHost">
+      <description><![CDATA[vCAC Host]]></description>
+    </param>
+    <param name="virtualMachineEntity" type="vCAC:Entity">
+      <description><![CDATA[Virtual machine entity to create/update properties on]]></description>
+    </param>
+    <param name="propertyName" type="string">
+      <description><![CDATA[Property name]]></description>
+    </param>
+    <param name="propertyValue" type="string">
+      <description><![CDATA[Property value]]></description>
+    </param>
+    <param name="propertyIsHidden" type="boolean">
+      <description><![CDATA[Property 'isHidden' flag]]></description>
+    </param>
+    <param name="propertyIsRuntime" type="boolean">
+      <description><![CDATA[Property 'isRuntime' flag]]></description>
+    </param>
+    <param name="propertyIsEncrypted" type="boolean">
+      <description><![CDATA[Property 'isEncrypted' flag]]></description>
+    </param>
+    <param name="doNotUpdate" type="boolean">
+      <description><![CDATA[Update flag]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="propertyEntity" type="vCAC:Entity">
+      <description><![CDATA[Updated vCAC entity]]></description>
+    </param>
+  </output>
+  <workflow-item name="item6" out-name="item0" type="task" script-module="com.vmware.library.vcac/addUpdatePropertyFromVirtualMachineEntity">
+    <display-name><![CDATA[addUpdatePropertyFromVirtualMachineEntity]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vcac").addUpdatePropertyFromVirtualMachineEntity(host,virtualMachineEntity,propertyName,propertyValue,propertyIsHidden,propertyIsRuntime,propertyIsEncrypted,doNotUpdate) ;]]></script>
+    <in-binding>
+      <bind name="host" type="vCAC:VCACHost" export-name="host"/>
+      <bind name="virtualMachineEntity" type="vCAC:Entity" export-name="virtualMachineEntity"/>
+      <bind name="propertyName" type="string" export-name="propertyName"/>
+      <bind name="propertyValue" type="string" export-name="propertyValue"/>
+      <bind name="propertyIsHidden" type="boolean" export-name="propertyIsHidden"/>
+      <bind name="propertyIsRuntime" type="boolean" export-name="propertyIsRuntime"/>
+      <bind name="propertyIsEncrypted" type="boolean" export-name="propertyIsEncrypted"/>
+      <bind name="doNotUpdate" type="boolean" export-name="doNotUpdate"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:Entity" export-name="propertyEntity"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="385.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+    <p-param name="virtualMachineEntity">
+      <desc><![CDATA[virtualMachineEntity]]></desc>
+    </p-param>
+    <p-param name="propertyName">
+      <desc><![CDATA[propertyName]]></desc>
+    </p-param>
+    <p-param name="propertyValue">
+      <desc><![CDATA[propertyValue]]></desc>
+    </p-param>
+    <p-param name="propertyIsHidden">
+      <desc><![CDATA[propertyIsHidden]]></desc>
+    </p-param>
+    <p-param name="propertyIsRuntime">
+      <desc><![CDATA[propertyIsRuntime]]></desc>
+    </p-param>
+    <p-param name="propertyIsEncrypted">
+      <desc><![CDATA[propertyIsEncrypted]]></desc>
+    </p-param>
+    <p-param name="doNotUpdate">
+      <desc><![CDATA[doNotUpdate]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

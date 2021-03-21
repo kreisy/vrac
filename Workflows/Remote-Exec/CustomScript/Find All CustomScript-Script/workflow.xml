@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item5" object-name="workflow:name=generic" id="e58926a6-02e5-41ed-bc55-94e44db8d0dd" version="0.0.1" api-version="6.0.0" allowed-operations="evf" editor-version="1.6" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Find All CustomScript-Script]]></display-name>
+  <position y="20.0" x="180.0"/>
+  <input>
+    <param name="type" type="string">
+      <description><![CDATA[object type]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="resultObjs" type="Array/DynamicTypes:DynamicObject">
+      <description><![CDATA[result objs]]></description>
+    </param>
+  </output>
+  <attrib name="errorCode" type="String" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[errorCode]]></description>
+  </attrib>
+  <attrib name="customScriptsConfig" type="string" read-only="false">
+    <value encoded="n"><![CDATA[CustomScripts/CustomScripts]]></value>
+  </attrib>
+  <attrib name="customScriptConfigElement" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="20.0" x="600.0"/>
+  </workflow-item>
+  <workflow-item name="item1" throw-bind-name="errorCode" type="end" end-mode="1">
+    <in-binding/>
+    <position y="90.0" x="600.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" catch-name="item1" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Get All Scripts]]></display-name>
+    <script encoded="false"><![CDATA[var resultObjs = new Array();
+var dtNamespace = type.split(".")[0];
+var dtClass = type.split(".")[1];
+
+for each(var attribute in customScriptConfigElement.attributes) {
+    var dtProps = attribute.value;
+    /*var scriptObj = DynamicTypesManager.makeObject("CustomScripts","Scripts.Script",attribute.name,attribute.name);
+        scriptObj.setProperty("vRADeploymentId",scriptProp.vRADeploymentId);
+        scriptObj.setProperty("vRACustomScript",scriptProp.vRACustomScript);
+    resultObjs.push(scriptObj);*/
+    resultObjs.push(System.getModule("com.vmware.coe.dynamicTypes").makeDynamicObjectFromProperties(dtNamespace, dtClass, dtProps));
+}
+]]></script>
+    <in-binding>
+      <bind name="customScriptConfigElement" type="ConfigurationElement" export-name="customScriptConfigElement"/>
+      <bind name="type" type="string" export-name="type"/>
+    </in-binding>
+    <out-binding>
+      <bind name="resultObjs" type="Array/DynamicTypes:DynamicObject" export-name="resultObjs"/>
+    </out-binding>
+    <position y="100.0" x="420.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task" script-module="com.vmware.cmbu/getConfigurationElementByPath">
+    <display-name><![CDATA[Get Config Element]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.cmbu").getConfigurationElementByPath(configurationElementPath);
+]]></script>
+    <in-binding>
+      <bind name="configurationElementPath" type="string" export-name="customScriptsConfig">
+        <description><![CDATA[Full path of the Configuration Element]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="ConfigurationElement" export-name="customScriptConfigElement"/>
+    </out-binding>
+    <description><![CDATA[Add a note to the workflow schema.]]></description>
+    <position y="100.0" x="280.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="custom-condition" alt-out-name="item3">
+    <display-name><![CDATA[Is Scripts Folder]]></display-name>
+    <script encoded="false"><![CDATA[if(type == "CustomScript.Scripts") {
+    return true;
+}
+return false;]]></script>
+    <in-binding>
+      <bind name="type" type="string" export-name="type"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Custom decision based on a custom script.]]></description>
+    <position y="20.0" x="280.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item0" type="task">
+    <display-name><![CDATA[Create Scripts Folder]]></display-name>
+    <script encoded="false"><![CDATA[var dtNamespace = type.split(".")[0];
+var dtClass = type.split(".")[1];
+
+var resultObjs = new Array();
+    resultObjs.push(DynamicTypesManager.makeObject(dtNamespace,dtClass,"Scripts","Scripts"));
+]]></script>
+    <in-binding>
+      <bind name="type" type="string" export-name="type"/>
+    </in-binding>
+    <out-binding>
+      <bind name="resultObjs" type="Array/DynamicTypes:DynamicObject" export-name="resultObjs"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="30.0" x="420.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Find All CustomScript-Script]]></title>
+      <p-group>
+        <title><![CDATA[Inputs]]></title>
+        <p-param name="type">
+          <desc><![CDATA[object type]]></desc>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

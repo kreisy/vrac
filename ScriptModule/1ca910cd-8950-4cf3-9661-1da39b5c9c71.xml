@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getBuildProfileNames" result-type="Array/string" api-version="6.0.0" id="1ca910cd-8950-4cf3-9661-1da39b5c9c71" version="0.0.2" allowed-operations="evf" category-name="com.vmware.pso.vcac">
+  <description><![CDATA[Given a vCAC Host, return an array of strings containing the name of all build profiles]]></description>
+  <param n="vcacHost" t="vCAC:VCACHost"><![CDATA[vCloud Automation Center host]]></param>
+  <script encoded="false"><![CDATA[if (vcacHost == null) return null;
+var modelName = "ManagementModelEntities.svc";
+var entitySetName = "GlobalProfiles";
+
+var entities = vCACEntityManager.readModelEntitiesByCustomFilter(vcacHost.id, modelName, entitySetName, null, null);
+System.log("Build Profiles found: "+entities.length);
+var prop = new Properties();
+for each (var entity in entities) {
+	prop.put(entity.getProperty("ProfileName"));
+}
+return prop.keys.sort();]]></script>
+</dunes-script-module>

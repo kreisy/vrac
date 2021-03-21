@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVirtualMachineProperties" result-type="Properties" api-version="6.0.0" id="48aa78c2-4ad8-42d6-8a0f-34d79d60aba1" version="1.0.0" allowed-operations="evf" category-name="com.vmware.pso.bayer">
+  <param n="virtualMachineEntity" t="vCAC:Entity"/>
+  <param n="vCACHost" t="vCAC:VCACHost"/>
+  <script encoded="false"><![CDATA[var virtualMachinePropertyEntities = virtualMachineEntity.getLink(vCACHost, "VirtualMachineProperties");
+
+var virtualMachineProperties = new Properties();
+
+for each (var virtualMachinePropertyEntity in virtualMachinePropertyEntities)
+{
+	var propertyName = virtualMachinePropertyEntity.getProperty("PropertyName");
+	var propertyValue = virtualMachinePropertyEntity.getProperty("PropertyValue");
+	virtualMachineProperties.put(propertyName, propertyValue);
+}
+
+return virtualMachineProperties;
+]]></script>
+</dunes-script-module>

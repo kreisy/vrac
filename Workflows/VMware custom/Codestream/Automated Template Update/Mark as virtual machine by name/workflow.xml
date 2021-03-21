@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item2" object-name="Workflow:name=generic" id="ff34d8ab-db34-47f4-8a2f-dc3464921aff" editor-version="1.6" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Mark as virtual machine by name</display-name>
+    <description>Converts an existing template to a virtual machine, allowing it to start.
+
+Warning: The workflow may finish before the virtual machine status is refreshed</description>
+    <position y="40.0" x="180.0"/>
+    <input>
+        <param name="vmname" type="string"/>
+    </input>
+    <output>
+        <param name="vmobject" type="VC:VirtualMachine"/>
+    </output>
+    <attrib name="host" type="VC:HostSystem">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='vc-demo.vcc.vmw%2Cid:host-203'&amp;dunesName='VC:HostSystem'</value>
+        <description>Target host or cluster on which the virtual machine is intended to run</description>
+    </attrib>
+    <attrib name="pool" type="VC:ResourcePool">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='vc-demo.vcc.vmw%2Cid:resgroup-1434'&amp;dunesName='VC:ResourcePool'</value>
+        <description>Resource pool in which the virtual machine is intended to run</description>
+    </attrib>
+    <attrib name="vm" type="VC:VirtualMachine">
+        <value encoded="n"/>
+        <description>The template to mark as virtual machine</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item1" type="task" comparator="0">
+        <display-name>Mark as VM</display-name>
+        <script encoded="false">vm.markAsVirtualMachine(pool, host);
+vmobject=vm;</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+            <bind name="pool" type="VC:ResourcePool" export-name="pool"/>
+            <bind name="host" type="VC:HostSystem" export-name="host"/>
+        </in-binding>
+        <out-binding>
+            <bind name="vmobject" type="VC:VirtualMachine" export-name="vmobject"/>
+        </out-binding>
+        <position y="155.4090909090909" x="145.0"/>
+    </workflow-item>
+    <workflow-item name="item1" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="245.40909090909088" x="185.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="2af170ae-2f4a-42a1-a02a-6d9f9702e5cf" comparator="0">
+        <display-name>Get virtual machine by name</display-name>
+        <in-binding>
+            <bind name="criteria" type="string" export-name="vmname">
+                <description>Search criteria. Regular expressions supported.</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="vms" type="Array/VC:VirtualMachine" export-name="NULL">
+                <description>Virtual machines found</description>
+            </bind>
+            <bind name="vmobject" type="VC:VirtualMachine" export-name="vm"/>
+        </out-binding>
+        <description>Returns a list of virtual machines from all registered vCenter Server hosts that match the provided expression.</description>
+        <position y="91.77272727272727" x="145.0"/>
+    </workflow-item>
+    <presentation>
+        <p-param name="vmname">
+            <desc>vmname</desc>
+        </p-param>
+    </presentation>
+</ns2:workflow>

@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="69eca2a8-9cde-4435-ba7c-e7d20ad9ab74" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[PWC Building]]></display-name>
+  <description><![CDATA[Workflow template to use for vCAC extensibility
+
+Input parameters can be used using vCAC VM properties using the format ExternalWFStubs.[workflow stub name].[vCO input parameter name]. If using plug-in types you need to pass their unique vCO IDs.
+
+Input parameters was tested successfully with : 
+- string
+- plug-in input types
+- number
+- boolean
+]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vCACVm" type="vCAC:VirtualMachine">
+      <description><![CDATA[vCAC virtual machine]]></description>
+    </param>
+    <param name="vCenterVm" type="VC:VirtualMachine">
+      <description><![CDATA[VC virtual machine]]></description>
+    </param>
+    <param name="vCACVmProperties" type="Properties">
+      <description><![CDATA[vCAC virtual machine properties]]></description>
+    </param>
+    <param name="ou" type="string">
+      <description><![CDATA[Department]]></description>
+    </param>
+  </input>
+  <attrib name="attrVMname" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="ouContainer" type="AD:OrganizationalUnit" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='%23_v2_%23%2C%23OU%23%2C%23f0799737-6b7d-42c0-8818-9a1283499a6b%23%2C%23OU%3DMulti%2CDC%3Dvpod%2CDC%3Dlocal%23'&dunesName='AD:OrganizationalUnit']]></value>
+    <description><![CDATA[Organizational unit in which to put the newly created organizational unit]]></description>
+  </attrib>
+  <attrib name="result" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="fresult" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="parentFolder" type="VC:VmFolder" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vctr-sitea.vpod.local/group-v22'&dunesName='VC:VmFolder']]></value>
+    <description><![CDATA[Parent folder]]></description>
+  </attrib>
+  <attrib name="host" type="vCAC:VCACHost" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='1e3fe2c9-cf55-49ce-be6b-dab2a0ac49fa'&dunesName='vCAC:VCACHost']]></value>
+    <description><![CDATA[vCAC Host]]></description>
+  </attrib>
+  <attrib name="propertyName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[VMware.VirtualCenter.Folder]]></value>
+    <description><![CDATA[Property name]]></description>
+  </attrib>
+  <attrib name="virtualMachineEntity" type="vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Virtual machine entity to create/update properties on]]></description>
+  </attrib>
+  <attrib name="propertyIsHidden" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Property 'isHidden' flag]]></description>
+  </attrib>
+  <attrib name="propertyIsRuntime" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Property 'isRuntime' flag]]></description>
+  </attrib>
+  <attrib name="propertyIsEncrypted" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Property 'isEncrypted' flag]]></description>
+  </attrib>
+  <attrib name="doNotUpdate" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Update flag]]></description>
+  </attrib>
+  <attrib name="propertyEntity" type="vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Updated vCAC entity]]></description>
+  </attrib>
+  <attrib name="newFolder" type="VC:VmFolder" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[The newly created folder, if no errors occur]]></description>
+  </attrib>
+  <attrib name="propertyValue" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Property value]]></description>
+  </attrib>
+  <attrib name="timer" type="Date" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="90.86363636363636" x="1324.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item4" type="task">
+    <display-name><![CDATA[Display inputs]]></display-name>
+    <script encoded="false"><![CDATA[var timer = new Date(new Date().getTime() + (4000));
+System.log("Got vCAC virtual machine " + vCACVm.virtualMachineName);
+
+//If you do not get a vApp or VM it is likely that it is not accessible at the stage of the vCAC process
+
+if (vCenterVm != null) {
+	System.log("Got vCloud VM " + vCenterVm.name);
+}
+				
+//Displaying vCAC VM properties
+if (vCACVmProperties != null) {
+	var log = "";
+	log += "vCAC VM properties :\n";
+	var array = new Array();
+	for each (var key in vCACVmProperties.keys) {
+		array.push(key + " : " + vCACVmProperties.get(key));	
+	}
+	array.sort();
+	
+	for each (var line in array) {
+		log += "\t" + line + "\n";
+	}	
+	System.log(log);	
+}
+attrVMname = vCACVm.displayName;
+var test = ActiveDirectory.search("OrganizationalUnit",ou);
+for (i in test){
+	System.log(test[i].name);
+	if (test[i].name == ou) {
+		result = "vorhanden";
+		System.log(ou+" ist vorhanden");
+	}
+	else {
+		System.log(ou+" nicht vorhanden");
+	}
+}
+]]></script>
+    <in-binding>
+      <bind name="vCACVm" type="vCAC:VirtualMachine" export-name="vCACVm"/>
+      <bind name="vCenterVm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+      <bind name="vCACVmProperties" type="Properties" export-name="vCACVmProperties"/>
+      <bind name="ou" type="string" export-name="ou"/>
+    </in-binding>
+    <out-binding>
+      <bind name="attrVMname" type="string" export-name="attrVMname"/>
+      <bind name="test" type="string" export-name="result"/>
+      <bind name="result" type="string" export-name="result"/>
+      <bind name="timer" type="Date" export-name="timer"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" type="link" linked-workflow-id="b8922b15-3a18-411d-b010-1d3bfc067cf6">
+    <display-name><![CDATA[vCAC Add Machine to AD]]></display-name>
+    <in-binding>
+      <bind name="computerName" type="string" export-name="attrVMname">
+        <description><![CDATA[Name for the new computer]]></description>
+      </bind>
+      <bind name="ou" type="string" export-name="ou">
+        <description><![CDATA[Parent organizational unit for the new computer]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="584.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="condition" alt-out-name="item10" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (result == "vorhanden") ;]]></script>
+    <in-binding>
+      <bind name="result" type="string" export-name="result"/>
+    </in-binding>
+    <condition name="result" type="string" comparator="0" label="null">vorhanden</condition>
+    <position y="45.40909090909091" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="task">
+    <display-name><![CDATA[Folders]]></display-name>
+    <script encoded="false"><![CDATA[var Folders = VcPlugin.getAllVmFolders();
+for (i in Folders){
+	System.log(Folders[i].name);
+	if (Folders[i].name == ou) {
+		Folder = Folders[i];
+		System.log("Folder vorhanden");
+		fresult = "vorhanden";
+	}
+	else {
+		System.log("Folder nicht vorhanden");
+		 }
+}]]></script>
+    <in-binding>
+      <bind name="ou" type="string" export-name="ou"/>
+    </in-binding>
+    <out-binding>
+      <bind name="fresult" type="string" export-name="fresult"/>
+    </out-binding>
+    <position y="55.40909090909091" x="724.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item9" type="condition" alt-out-name="item11" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (fresult == "vorhanden") ;]]></script>
+    <in-binding>
+      <bind name="fresult" type="string" export-name="fresult"/>
+    </in-binding>
+    <condition name="fresult" type="string" comparator="0" label="null">vorhanden</condition>
+    <position y="45.40909090909091" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item0" type="link" linked-workflow-id="8edf48e9-162e-40d7-91f7-d2458a61da1d">
+    <display-name><![CDATA[Create / update property on virtualMachine Entity]]></display-name>
+    <in-binding>
+      <bind name="host" type="vCAC:VCACHost" export-name="host">
+        <description><![CDATA[vCAC Host]]></description>
+      </bind>
+      <bind name="virtualMachineEntity" type="vCAC:Entity" export-name="virtualMachineEntity">
+        <description><![CDATA[Virtual machine entity to create/update properties on]]></description>
+      </bind>
+      <bind name="propertyName" type="string" export-name="propertyName">
+        <description><![CDATA[Property name]]></description>
+      </bind>
+      <bind name="propertyValue" type="string" export-name="propertyValue">
+        <description><![CDATA[Property value]]></description>
+      </bind>
+      <bind name="propertyIsHidden" type="boolean" export-name="propertyIsHidden">
+        <description><![CDATA[Property 'isHidden' flag]]></description>
+      </bind>
+      <bind name="propertyIsRuntime" type="boolean" export-name="propertyIsRuntime">
+        <description><![CDATA[Property 'isRuntime' flag]]></description>
+      </bind>
+      <bind name="propertyIsEncrypted" type="boolean" export-name="propertyIsEncrypted">
+        <description><![CDATA[Property 'isEncrypted' flag]]></description>
+      </bind>
+      <bind name="doNotUpdate" type="boolean" export-name="doNotUpdate">
+        <description><![CDATA[Update flag]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="propertyEntity" type="vCAC:Entity" export-name="propertyEntity">
+        <description><![CDATA[Updated vCAC entity]]></description>
+      </bind>
+    </out-binding>
+    <position y="100.86363636363636" x="1144.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item8" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[if (vCACVmProperties != null) {
+	var log = "";
+	log += "vCAC VM properties :\n";
+	var array = new Array();
+	for each (var key in vCACVmProperties.keys) {
+		array.push(key + " : " + vCACVmProperties.get(key));	
+	}
+	array.sort();
+	
+	for each (var line in array) {
+		log += "\t" + line + "\n";
+	}	
+	System.log(log);	
+}
+var virtualMachineEntity = vCACVm.getEntity();
+var propertyValue = ou;]]></script>
+    <in-binding>
+      <bind name="vCACVmProperties" type="Properties" export-name="vCACVmProperties"/>
+      <bind name="vCACVm" type="vCAC:VirtualMachine" export-name="vCACVm"/>
+      <bind name="ou" type="string" export-name="ou"/>
+    </in-binding>
+    <out-binding>
+      <bind name="virtualMachineEntity" type="vCAC:Entity" export-name="virtualMachineEntity"/>
+      <bind name="propertyValue" type="string" export-name="propertyValue"/>
+    </out-binding>
+    <position y="100.86363636363636" x="1004.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item3" type="task" launched-workflow-id="958080808080808080808080808080803D81808001175609873343b6bbd2e3eea">
+    <display-name><![CDATA[Create an organizational unit]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+var workflowToLaunch = Server.getWorkflowWithId("958080808080808080808080808080803D81808001175609873343b6bbd2e3eea");
+if (workflowToLaunch == null) {
+	throw "Workflow not found";
+}
+
+var workflowParameters = new Properties();
+workflowParameters.put("ouName",ouName);
+workflowParameters.put("ouContainer",ouContainer);
+var wfToken = workflowToLaunch.execute(workflowParameters);]]></script>
+    <in-binding>
+      <bind name="ouName" type="string" export-name="ou">
+        <description><![CDATA[The name for the new organizational unit]]></description>
+      </bind>
+      <bind name="ouContainer" type="AD:OrganizationalUnit" export-name="ouContainer">
+        <description><![CDATA[Organizational unit in which to put the newly created organizational unit]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="wfToken" type="WorkflowToken" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[Workflow execution token]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Creates an organizational unit in an existing organizational unit.]]></description>
+    <position y="137.22727272727272" x="365.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="waiting-timer">
+    <display-name><![CDATA[Waiting timer]]></display-name>
+    <in-binding>
+      <bind name="timer.date" type="Date" export-name="timer">
+        <description><![CDATA[This timer item will wait until date and will continue workflow execution.]]></description>
+      </bind>
+    </in-binding>
+    <position y="81.77272727272727" x="525.0"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item9" type="task" launched-workflow-id="BD8080808080808080808080808080808EC380800122528313869552e41805bb1">
+    <display-name><![CDATA[Create virtual machine folder]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+var workflowToLaunch = Server.getWorkflowWithId("BD8080808080808080808080808080808EC380800122528313869552e41805bb1");
+if (workflowToLaunch == null) {
+	throw "Workflow not found";
+}
+
+var workflowParameters = new Properties();
+workflowParameters.put("parentFolder",parentFolder);
+workflowParameters.put("name",name);
+var wfToken = workflowToLaunch.execute(workflowParameters);]]></script>
+    <in-binding>
+      <bind name="parentFolder" type="VC:VmFolder" export-name="parentFolder">
+        <description><![CDATA[Parent folder]]></description>
+      </bind>
+      <bind name="name" type="string" export-name="ou">
+        <description><![CDATA[Name of the new folder]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="wfToken" type="WorkflowToken" explicitly-not-bound="true">
+        <description><![CDATA[Workflow execution token]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Creates a new virtual machine folder.]]></description>
+    <position y="137.22727272727272" x="865.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vCACVm">
+      <desc><![CDATA[vCACVm]]></desc>
+    </p-param>
+    <p-param name="vCenterVm">
+      <desc><![CDATA[vCenterVm]]></desc>
+    </p-param>
+    <p-param name="vCACVmProperties">
+      <desc><![CDATA[vCACVmProperties]]></desc>
+    </p-param>
+    <p-param name="ou">
+      <desc><![CDATA[Organisational Unit]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

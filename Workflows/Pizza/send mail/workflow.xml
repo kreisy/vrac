@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="1e76c22a-dd16-4be7-9fcd-25005bbb3d6f" editor-version="1.6" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+    <display-name>send mail</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="pizzaName" type="string"/>
+        <param name="toppingOne" type="string"/>
+        <param name="toppingTwo" type="string"/>
+        <param name="toppingThree" type="string"/>
+    </input>
+    <output/>
+    <attrib name="toAddress" type="string">
+        <value encoded="n">vmware@vcc.vmw</value>
+    </attrib>
+    <attrib name="subject" type="string">
+        <value encoded="n">Details about your pizza order</value>
+    </attrib>
+    <attrib name="fromAddress" type="string">
+        <value encoded="n">vra@vcc.vmw</value>
+    </attrib>
+    <attrib name="smtpHost" type="string">
+        <value encoded="n">172.16.107.113</value>
+    </attrib>
+    <attrib name="smtpUsername" type="string">
+        <value encoded="n">vra@vcc.vmw</value>
+    </attrib>
+    <attrib name="smtpPassword" type="SecureString">
+        <value encoded="n">8BL56R4DN77R61I72Z65L31S21XE93881HF50838AX1C1C197PA53BA00X144B80EZ616A775IB5275F5W99807EDGA0222B5OB71CFA0QB8EAAB2H7EF1D79I9C7C5E6OA61D795ZAC488A8V53FFF29XE296DEFKFC5CEFM63B7E43V89EFB69U2292AA6H9EBF840Q49BA6ADP7BE89EEG</value>
+    </attrib>
+    <attrib name="fromName" type="string">
+        <value encoded="n">Mafia Super Pizza</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="45.40909090909091" x="384.5"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>send mail</display-name>
+        <script encoded="false">var htmlBody = '&lt;html&gt;&lt;body&gt;';
+htmlBody += 'Details about your pizza order:&lt;br&gt;&lt;br&gt;';
+htmlBody += '&lt;table border="1" cellpadding="5"&gt;';
+htmlBody += '&lt;tr&gt;&lt;td colspan="2"&gt;&lt;center&gt;' + pizzaName + '&lt;/center&gt;&lt;/td&gt;&lt;/tr&gt;';
+if (toppingOne != "None" &amp;&amp; toppingOne != "") htmlBody += '&lt;tr&gt;&lt;td&gt;Topping one:&lt;/td&gt;&lt;td&gt;' + toppingOne + '&lt;/td&gt;&lt;/tr&gt;';
+if (toppingTwo != "None" &amp;&amp; toppingTwo != "") htmlBody += '&lt;tr&gt;&lt;td&gt;Topping two:&lt;/td&gt;&lt;td&gt;' + toppingTwo + '&lt;/td&gt;&lt;/tr&gt;';
+if (toppingThree != "None" &amp;&amp; toppingThree != "") htmlBody += '&lt;tr&gt;&lt;td&gt;Topping three:&lt;/td&gt;&lt;td&gt;' + toppingThree + '&lt;/td&gt;&lt;/tr&gt;';
+htmlBody += '&lt;/table&gt;&lt;br&gt;&lt;br&gt;';
+htmlBody += 'Thank you for ordering at Mafia Pizza&lt;br&gt;';
+htmlBody += 'Your lovely italian pizza family corp&lt;br&gt;';
+htmlBody += '&lt;a href="mailto:pizza@corp.local"&gt;pizza@corp.local - lovely italian pizza&lt;/a&gt;';
+htmlBody += '&lt;/body&gt;&lt;/html&gt;';
+
+var email         = new EmailMessage();
+email.smtpHost    = smtpHost;
+email.username    = smtpUsername;
+email.password    = smtpPassword;
+email.toAddress   = toAddress;
+email.fromAddress = fromAddress;
+email.fromName    = fromName;
+email.subject     = subject;
+email.addMimePart(htmlBody, "TEXT/HTML");
+email.sendMessage();
+</script>
+        <in-binding>
+            <bind name="toAddress" type="string" export-name="toAddress"/>
+            <bind name="subject" type="string" export-name="subject"/>
+            <bind name="fromAddress" type="string" export-name="fromAddress"/>
+            <bind name="smtpHost" type="string" export-name="smtpHost"/>
+            <bind name="smtpUsername" type="string" export-name="smtpUsername"/>
+            <bind name="smtpPassword" type="SecureString" export-name="smtpPassword"/>
+            <bind name="pizzaName" type="string" export-name="pizzaName"/>
+            <bind name="toppingOne" type="string" export-name="toppingOne"/>
+            <bind name="toppingTwo" type="string" export-name="toppingTwo"/>
+            <bind name="toppingThree" type="string" export-name="toppingThree"/>
+            <bind name="fromName" type="string" export-name="fromName"/>
+        </in-binding>
+        <out-binding/>
+        <position y="55.40909090909091" x="204.5"/>
+    </workflow-item>
+    <presentation>
+        <p-param name="pizzaName">
+            <desc>pizzaName</desc>
+        </p-param>
+        <p-param name="toppingOne">
+            <desc>toppingOne</desc>
+        </p-param>
+        <p-param name="toppingTwo">
+            <desc>toppingTwo</desc>
+        </p-param>
+        <p-param name="toppingThree">
+            <desc>toppingThree</desc>
+        </p-param>
+    </presentation>
+</ns2:workflow>

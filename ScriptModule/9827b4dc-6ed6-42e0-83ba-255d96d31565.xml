@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="detachVmFromTag" result-type="void" api-version="6.0.0" id="9827b4dc-6ed6-42e0-83ba-255d96d31565" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityTag">
+  <param n="vmMoRef" t="string"/>
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="tagId" t="string"/>
+  <script encoded="false"><![CDATA[var request = restHost.createRequest("DELETE", "api/2.0/services/securitytags/tag/"+tagId+"/vm/"+vmMoRef);
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not detach vm from tag ! : " + response.statusCode + "\n" + response.contentAsString);
+
+System.log("Successfuly Detach VM: " + vmMoRef + " from Security Tag");]]></script>
+</dunes-script-module>

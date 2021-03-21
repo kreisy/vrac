@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVCVirtualMachinebyName" result-type="VC:VirtualMachine" api-version="6.0.0" id="4163802a-8238-4ce4-9916-477d4f92ab47" version="0.0.0" allowed-operations="vfe" category-name="com.vmware.custom">
+  <param n="VMName" t="string"/>
+  <script encoded="false"><![CDATA[var allVms = VcPlugin.getAllVirtualMachines();
+ 
+for (var i in allVms) {
+	System.log(allVms[i].name);
+	if(allVms[i].name == VMName)
+ 		{
+ 		vm = allVms[i];
+		break;
+ 	}
+}
+System.log (vm);
+return vm;]]></script>
+</dunes-script-module>

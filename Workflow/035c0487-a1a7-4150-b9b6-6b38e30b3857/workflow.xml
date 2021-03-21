@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item7" object-name="Workflow:name=generic" id="035c0487-a1a7-4150-b9b6-6b38e30b3857" version="0.0.10" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Increase CPUs of VC VM]]></display-name>
+  <description><![CDATA[Increase vCPU count of a VC virtual machine.]]></description>
+  <position y="9.045454545454543" x="105.0"/>
+  <input>
+    <param name="targetId" type="string"/>
+    <param name="targetvCenteruuid" type="string">
+      <description><![CDATA[UUID of the vCenter where the target VM is located]]></description>
+    </param>
+  </input>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="vmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Name of vCAC VM]]></description>
+  </attrib>
+  <attrib name="vcacVM" type="vCAC:VirtualMachine" read-only="false">
+    <description><![CDATA[vCACvm used to put custom property on it]]></description>
+  </attrib>
+  <attrib name="cpuIncreaseCounter" type="string" read-only="false">
+    <value encoded="n"><![CDATA[2]]></value>
+    <description><![CDATA[number of CPUs to be added to the existing CPUs]]></description>
+  </attrib>
+  <attrib name="newCPUcount" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Variable to keep the new CPUs]]></description>
+  </attrib>
+  <attrib name="vCACHost" type="vCAC:VCACHost" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='c6e5c846-eb90-4374-b076-ed51aa9c6898'&dunesName='vCAC:VCACHost']]></value>
+    <description><![CDATA[vCAChost]]></description>
+  </attrib>
+  <attrib name="CorrelationId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="statusOut" type="boolean" read-only="false"/>
+  <attrib name="vcVM" type="VC:VirtualMachine" read-only="false"/>
+  <workflow-item name="item1" out-name="item8" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" explicitly-not-bound="true"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="19.045454545454543" x="604.5"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="72.68181818181817" x="104.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.vc.vm/changeVMvCPU">
+    <display-name><![CDATA[changeVMvCPU]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm").changeVMvCPU(vm,vcpu) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vcVM">
+        <description><![CDATA[The VM to change]]></description>
+      </bind>
+      <bind name="vcpu" type="number" export-name="newCPUcount">
+        <description><![CDATA[New vCPU number]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <description><![CDATA[Change the number of vCPUs in the VM.]]></description>
+    <position y="19.045454545454543" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="task">
+    <display-name><![CDATA[GetVmCPUnum]]></display-name>
+    <script encoded="false"><![CDATA[var currentCPUcount = 0;
+newCPUcount = 0;
+newCPUcountStr = null;
+currentCPUcount = vm.config.hardware.numCPU;  
+newCPUcount = currentCPUcount + cpuIncreaseCounter;  
+
+System.log("VM's current CPU number is: " + currentCPUcount);
+newCPUcount = currentCPUcount + cpuIncreaseCounter;
+
+System.log("VM's name is: " + vm.name);
+vmName = vm.name;
+
+
+]]></script>
+    <in-binding>
+      <bind name="cpuIncreaseCounter" type="string" export-name="cpuIncreaseCounter"/>
+      <bind name="vcVM" type="VC:VirtualMachine" export-name="vcVM"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmName" type="string" export-name="vmName"/>
+      <bind name="newCPUcount" type="number" export-name="newCPUcount"/>
+    </out-binding>
+    <position y="19.045454545454543" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item4" type="task">
+    <display-name><![CDATA[UpdateVCACVMCPU]]></display-name>
+    <script encoded="false"><![CDATA[
+var virtualMachineEntity = vcacVM.getEntity();
+var propertyIsHidden = false;
+var propertyIsRuntime = false;
+var propertyIsEncrypted = false;
+var doNotUpdate = false;
+
+System.log("VCAC entity " + virtualMachineEntity);
+var cpuToStr = newCPUcount.toString();
+System.log("cpuToStr: " + cpuToStr);
+System.getModule("com.vmware.library.vcac").addUpdatePropertyFromVirtualMachineEntity(vCACHost,virtualMachineEntity,"VirtualMachine.CPU.Count",cpuToStr,propertyIsHidden,propertyIsRuntime,propertyIsEncrypted,doNotUpdate);]]></script>
+    <in-binding>
+      <bind name="vCACHost" type="vCAC:VCACHost" export-name="vCACHost"/>
+      <bind name="vcacVM" type="vCAC:VirtualMachine" export-name="vcacVM"/>
+      <bind name="newCPUcount" type="number" export-name="newCPUcount"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Updates custom property to vCAC VM "VirtualMachine.CPU.Count"]]></description>
+    <position y="82.68181818181817" x="444.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="link" linked-workflow-id="9ef7fdb1-2385-4fe5-adc7-5527ca124da7">
+    <display-name><![CDATA[Force data collection]]></display-name>
+    <in-binding>
+      <bind name="host" type="vCAC:VCACHost" export-name="vCACHost">
+        <description><![CDATA[vCAC host]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Forces data collection of all compute resources.]]></description>
+    <position y="82.68181818181817" x="264.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item3" type="link" linked-workflow-id="6ff24a3a-d83e-47fd-9661-cdfbed7b7c22">
+    <display-name><![CDATA[Find VM by MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM is located]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="vcVM"/>
+      <bind name="targetVmName" type="string" export-name="vmName"/>
+    </out-binding>
+    <position y="19.045454545454543" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item5" type="task" script-module="com.vmware.pso.bayer/getVcacVmByName">
+    <display-name><![CDATA[getVcacVmByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.bayer").getVcacVmByName(vmName) ;]]></script>
+    <in-binding>
+      <bind name="vmName" type="string" export-name="vmName">
+        <description><![CDATA[Name of vCAC VM]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:VirtualMachine" export-name="vcacVM"/>
+    </out-binding>
+    <description><![CDATA[Searches for a vCAC:VirtualMachine object based on the name]]></description>
+    <position y="82.68181818181817" x="605.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Step 1]]></title>
+      <desc><![CDATA[Common Data]]></desc>
+    </p-step>
+    <p-param name="targetId">
+      <desc><![CDATA[MOID of Target VM]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[UUID of the vCenter where the Target VM is located]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

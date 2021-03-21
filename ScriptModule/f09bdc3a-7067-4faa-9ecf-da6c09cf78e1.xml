@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwIpSetIdsByName" result-type="Array/string" api-version="6.0.0" id="f09bdc3a-7067-4faa-9ecf-da6c09cf78e1" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="ipSetNames" t="Array/string"/>
+  <param n="restHost" t="REST:RESTHost"/>
+  <script encoded="false"><![CDATA[var ipSetIds = new Array();
+var request = restHost.createRequest("GET", "api/2.0/services/ipset/scope/globalroot-0");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+if(response.statusCode != 200) throw("Could not GET IP sets ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var ipSets = new XML(response.contentAsString);
+for each (var ipSetName in ipSetNames)
+{
+	var found=false;
+	for each (var ipSet in ipSets.ipset)
+	{
+		if(ipSetName==ipSet.name.toString())
+		{
+			found=true;
+			System.log("Found Service "+ipSetName+" with the ID: "+ipSet.objectId.toString());
+			ipSetIds.push(ipSet.objectId.toString());
+		}	
+	}
+	if (!found) {
+		System.log("Unabe to find IP Set with the name: "+ipSetName); }
+}
+
+return ipSetIds;]]></script>
+</dunes-script-module>

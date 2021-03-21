@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwSectionGenerationByName" result-type="string" api-version="6.0.0" id="68e80170-11e0-4e28-9128-9491206cf107" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="sectionName" t="string"/>
+  <script encoded="false"><![CDATA[var request = restHost.createRequest("GET", "api/4.0/firewall/globalroot-0/config");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not GET firewall sections ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var firewallConfigurationXml = new XML(response.contentAsString);
+var section = firewallConfigurationXml.layer3Sections.section.(@name == sectionName);
+return section.@generationNumber.toString();
+]]></script>
+</dunes-script-module>

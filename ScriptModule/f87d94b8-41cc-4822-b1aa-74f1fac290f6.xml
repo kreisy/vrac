@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getvCenterVmFromvCACVm" result-type="VC:VirtualMachine" api-version="6.0.0" id="f87d94b8-41cc-4822-b1aa-74f1fac290f6" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.vcac">
+  <param n="vCACVm" t="vCAC:VirtualMachine"/>
+  <script encoded="false"><![CDATA[System.log("vmUniqueID : " + vCACVm.vmUniqueID);
+
+if (vCACVm.vmUniqueID != null) { 
+	System.log("Trying to resolve a vCenter VM");	
+	try {
+		vCenterVMs = VcPlugin.getAllVirtualMachines();
+		for each (var vm in vCenterVMs)
+		{
+			if (vCACVm.vmUniqueID==vm.summary.config.instanceUuid)
+			{
+				vCenterVM = vm;
+				break;
+			}
+		}
+	}
+	catch(e) 
+	{
+		System.log("Opss... error : " + e);
+	}
+	if (vCenterVM != null) 
+	{
+		System.log("Resolved vCenter VM " + vCenterVM.name);
+		return vCenterVM;
+	}
+	else
+	{
+		throw("Unable to find vCenter VM");
+	}	
+}]]></script>
+</dunes-script-module>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="AddAnnotation" result-type="void" api-version="6.0.0" id="31577381-744c-43d1-82a6-89fb7c0802b5" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cliebner">
+  <param n="vm" t="VC:VirtualMachine"/>
+  <param n="annotation" t="string"/>
+  <script encoded="false"><![CDATA[var configSpec = new VcVirtualMachineConfigSpec();
+configSpec.annotation = "Provisioned by VMware vCAC \n"+  annotation;
+var task = vm.reconfigVM_Task( configSpec );
+return task;
+]]></script>
+</dunes-script-module>

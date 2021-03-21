@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwApplicationGroupsIdsByName" result-type="Array/string" api-version="6.0.0" id="2ef9f082-49a8-4e6a-add8-7a85e8926b5f" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="applicationNames" t="Array/string"/>
+  <param n="restHost" t="REST:RESTHost"/>
+  <script encoded="false"><![CDATA[var applicationIds = new Array();
+var request = restHost.createRequest("GET", "api/2.0/services/applicationgroup/scope/globalroot-0");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+if(response.statusCode != 200) throw("Could not GET Service Groups ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var firewallConfigurationXml = new XML(response.contentAsString);
+var services = firewallConfigurationXml.applicationGroup;
+for each (var applicationName in applicationNames)
+{
+	var found=false;
+	for each (var service in services)
+	{
+		if(applicationName==service.name.toString())
+		{
+			found=true;
+			System.log("Found Service Group "+applicationName+" with the ID: "+service.objectId.toString());
+			applicationIds.push(service.objectId.toString());
+		}	
+	}
+	if(!found) {
+		System.log("Unable to find Service Group with the Name: "+applicationName); }
+}
+return applicationIds;]]></script>
+</dunes-script-module>

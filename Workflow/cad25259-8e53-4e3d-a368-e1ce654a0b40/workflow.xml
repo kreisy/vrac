@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item8" object-name="workflow:name=generic" id="cad25259-8e53-4e3d-a368-e1ce654a0b40" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Provision Stub]]></display-name>
+  <description><![CDATA[Workflow template to use for vCAC extensibility
+
+Input parameters can be used using vCAC VM properties using the format ExternalWFStubs.[workflow stub name].[vCO input parameter name]. If using plug-in types you need to pass their unique vCO IDs.
+
+Input parameters was tested successfully with : 
+- string
+- plug-in input types
+- number
+- boolean
+]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vCenterVm" type="VC:VirtualMachine">
+      <description><![CDATA[VC virtual machine]]></description>
+    </param>
+    <param name="vCACVmProperties" type="Properties">
+      <description><![CDATA[vCAC virtual machine properties]]></description>
+    </param>
+    <param name="Annotation" type="string">
+      <description><![CDATA[Annotation Text]]></description>
+    </param>
+  </input>
+  <attrib name="cluster" type="VC:ClusterComputeResource" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vctr-sitea.vpod.local/domain-c26'&dunesName='VC:ClusterComputeResource']]></value>
+    <description><![CDATA[Cluster compute resource]]></description>
+  </attrib>
+  <attrib name="vmArray" type="Array/VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="DRSGroup" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[DRS Group]]></description>
+  </attrib>
+  <attrib name="RP" type="VC:ResourcePool" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Ressourcepool]]></description>
+  </attrib>
+  <attrib name="Department" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="Folder" type="VC:VmFolder" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="1504.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" type="link" linked-workflow-id="82808080808080808080808080808080F88980800131218696410919c1c1aef2e">
+    <display-name><![CDATA[Add virtual machines to DRS group]]></display-name>
+    <in-binding>
+      <bind name="cluster" type="VC:ClusterComputeResource" export-name="cluster">
+        <description><![CDATA[Cluster compute resource]]></description>
+      </bind>
+      <bind name="vm_group" type="string" export-name="DRSGroup">
+        <description><![CDATA[DRS Virtual machine group name]]></description>
+      </bind>
+      <bind name="vms" type="Array/VC:VirtualMachine" export-name="vmArray">
+        <description><![CDATA[A list of virtual machines]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Adds a virtual machine list to an existing DRS virtual machine group.]]></description>
+    <position y="55.40909090909091" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task">
+    <display-name><![CDATA[Building Array]]></display-name>
+    <script encoded="false"><![CDATA[System.log("VM Name: " + vCenterVm.name)
+vmArray = new Array();
+vmArray.push(vCenterVm);
+]]></script>
+    <in-binding>
+      <bind name="vCenterVm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmArray" type="Array/VC:VirtualMachine" export-name="vmArray"/>
+    </out-binding>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item3" type="task" script-module="com.vmware.cliebner/AddAnnotation">
+    <display-name><![CDATA[AddAnnotation]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.cliebner").AddAnnotation(vm,annotation) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+      <bind name="annotation" type="string" export-name="Annotation"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="link" linked-workflow-id="BD80808080808080808080808080808021C180800122528313869552e41805bb1">
+    <display-name><![CDATA[Move virtual machine to resource pool]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vCenterVm">
+        <description><![CDATA[Virtual machine to move]]></description>
+      </bind>
+      <bind name="resourcePool" type="VC:ResourcePool" export-name="RP">
+        <description><![CDATA[Destination resource pool]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Moves a virtual machine to a resource pool. If the target resource pool is not in the same cluster, you must use the migrate or relocate workflows.]]></description>
+    <position y="55.40909090909091" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item7" type="link" linked-workflow-id="BD80808080808080808080808080808085C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Move virtual machine to folder]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vCenterVm">
+        <description><![CDATA[Virtual machine to move]]></description>
+      </bind>
+      <bind name="folder" type="VC:VmFolder" export-name="Folder">
+        <description><![CDATA[Destination virtual machine folder]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Moves a virutal machine to a specified virtual machine folder.]]></description>
+    <position y="55.40909090909091" x="1184.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var message = new EmailMessage();
+var htmlBody = '<html><body>';
+htmlBody += 'Details about your VM order:<br><br>';
+htmlBody += '<table border="1" cellpadding="5">';
+htmlBody += '<tr><td colspan="2"><center>' + vCenterVm.name + '</center></td></tr>';
+htmlBody += '<tr><td>Organisational Unit:</td><td>' + RP.name + '</td></tr>';
+htmlBody += '<tr><td>DRS Group:</td><td>' + DRSGroup + '</td></tr>';
+htmlBody += '<tr><td>Resource Pool:</td><td>' + RP.name + '</td></tr>';
+htmlBody += '<tr><td>Folder:</td><td>' + Folder.name + '</td></tr>';
+htmlBody += '</table><br><br>';
+htmlBody += 'Thank you for ordering a VM<br>';
+htmlBody += 'Have a nice Day<br>';
+htmlBody += '<a href="mailto:vCAC@vpod.local">vCAC Administrator</a>';
+htmlBody += '</body></html>';
+
+// Override default settings if and only if input parameter is set
+
+message.smtpHost = "controlctr.vpod.local";
+message.smtpPort = "25";
+message.username = "vra@vpod.local";
+message.password = "VMware1!";
+message.fromName = "vRA Administrator";
+message.fromAddress = "vra@vpod.local";
+message.toAddress = "administrator@vpod.local";
+message.subject = "Details about your VM order";
+message.addMimePart(htmlBody, "TEXT/HTML");
+message.sendMessage();]]></script>
+    <in-binding>
+      <bind name="vCenterVm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+      <bind name="DRSGroup" type="string" export-name="DRSGroup"/>
+      <bind name="RP" type="VC:ResourcePool" export-name="RP"/>
+      <bind name="Department" type="string" export-name="Department"/>
+      <bind name="Folder" type="VC:VmFolder" export-name="Folder"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="1324.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[if (vCACVmProperties != null) {
+	var log = "";
+	log += "vCAC VM properties :\n";
+	var array = new Array();
+	for each (var key in vCACVmProperties.keys) {
+		array.push(key + " : " + vCACVmProperties.get(key));	
+	}
+	array.sort();
+	
+	for each (var line in array) {
+		log += "\t" + line + "\n";
+	}	
+	System.log(log);	
+}
+var Department = vCACVmProperties.get("ExternalWFStubs.BuildingMachine.department");
+var Resourcepools = VcPlugin.getAllResourcePools();
+for (i in Resourcepools){
+	System.log(Resourcepools[i].name);
+	if (Resourcepools[i].name == Department) {
+		RP = Resourcepools[i];
+	}
+	else {
+		System.log("Es wurde kein RP gefunden");
+	}
+}
+
+var DRSGroup = vCACVmProperties.get("ExternalWFStubs.BuildingMachine.department") + "DRS";]]></script>
+    <in-binding>
+      <bind name="vCACVmProperties" type="Properties" export-name="vCACVmProperties"/>
+    </in-binding>
+    <out-binding>
+      <bind name="RP" type="VC:ResourcePool" export-name="RP"/>
+      <bind name="DRSGroup" type="string" export-name="DRSGroup"/>
+      <bind name="Department" type="string" export-name="Department"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item4" type="task" script-module="com.vmware.cliebner/getFolderByName">
+    <display-name><![CDATA[getFolderByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.cliebner").getFolderByName(Department) ;]]></script>
+    <in-binding>
+      <bind name="Department" type="string" export-name="Department">
+        <description><![CDATA[Ordner der gesucht werden soll]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:VmFolder" export-name="Folder"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vCenterVm">
+      <desc><![CDATA[vCenterVm]]></desc>
+    </p-param>
+    <p-param name="vCACVmProperties">
+      <desc><![CDATA[vCACVmProperties]]></desc>
+    </p-param>
+    <p-param name="Annotation">
+      <desc><![CDATA[Annotation Text]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

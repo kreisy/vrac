@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="5d1f2e10-b905-493a-8bc7-ce9f986bcaaa" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create NSX Firewall IP Set]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="restHost" type="REST:RESTHost"/>
+    <param name="ipSetName" type="string"/>
+    <param name="desc" type="string"/>
+    <param name="rangeBegin" type="string"/>
+    <param name="rangeEnd" type="string"/>
+  </input>
+  <attrib name="ipSetId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task" script-module="com.vmware.se.nsx.fw/newFwIpSet">
+    <display-name><![CDATA[newFwIpSet]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").newFwIpSet(restHost,ipSetName,desc,rangeBegin,rangeEnd) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="ipSetName" type="string" export-name="ipSetName"/>
+      <bind name="desc" type="string" export-name="desc"/>
+      <bind name="rangeBegin" type="string" export-name="rangeBegin"/>
+      <bind name="rangeEnd" type="string" export-name="rangeEnd"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="ipSetId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="ipSetName">
+      <desc><![CDATA[ipSetName]]></desc>
+    </p-param>
+    <p-param name="desc">
+      <desc><![CDATA[desc]]></desc>
+    </p-param>
+    <p-param name="rangeBegin">
+      <desc><![CDATA[rangeBegin]]></desc>
+      <p-qual kind="static" name="inetAddress" type="String"><![CDATA[IPv4 address]]></p-qual>
+    </p-param>
+    <p-param name="rangeEnd">
+      <desc><![CDATA[rangeEnd]]></desc>
+      <p-qual kind="static" name="inetAddress" type="String"><![CDATA[IPv4 address]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

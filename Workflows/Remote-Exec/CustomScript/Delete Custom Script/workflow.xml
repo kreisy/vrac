@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item5" object-name="workflow:name=generic" id="703b4290-13d8-4025-825e-26d1b68e9262" version="0.1.0" api-version="6.0.0" allowed-operations="evf" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Delete Custom Script]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="customScript" type="DynamicTypes:CustomScript.Script"/>
+  </input>
+  <attrib name="configurationElementPath" type="string" read-only="false">
+    <value encoded="n"><![CDATA[CustomScripts/CustomScripts]]></value>
+  </attrib>
+  <attrib name="customScriptConfigElement" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="error" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="460.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" catch-name="item4" throw-bind-name="error" type="task">
+    <display-name><![CDATA[Delete Custom Script]]></display-name>
+    <script encoded="false"><![CDATA[var deleteVariable = System.getModule("com.vmware.cmbu").deleteConfigurationElementVariable(customScriptConfigElement,customScript.id);
+]]></script>
+    <in-binding>
+      <bind name="customScript" type="DynamicTypes:CustomScript.Script" export-name="customScript"/>
+      <bind name="customScriptConfigElement" type="ConfigurationElement" export-name="customScriptConfigElement"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="60.0" x="300.0"/>
+  </workflow-item>
+  <workflow-item name="item4" throw-bind-name="error" type="end" end-mode="1">
+    <in-binding/>
+    <position y="110.0" x="340.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item3" type="task" script-module="com.vmware.cmbu/getConfigurationElementByPath">
+    <display-name><![CDATA[Get Configuration Element]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.cmbu").getConfigurationElementByPath(configurationElementPath);
+]]></script>
+    <in-binding>
+      <bind name="configurationElementPath" type="string" export-name="configurationElementPath">
+        <description><![CDATA[Full path of the Configuration Element]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="ConfigurationElement" export-name="customScriptConfigElement"/>
+    </out-binding>
+    <description><![CDATA[Add a note to the workflow schema.]]></description>
+    <position y="60.0" x="180.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

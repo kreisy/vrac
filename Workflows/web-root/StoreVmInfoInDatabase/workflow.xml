@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="577f9e41-0708-48f2-965c-4632995a6922" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>StoreVmInfoInDatabase</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="database" type="SQL:Database">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='4fb94180-5c8a-4411-8987-f100bc84056b'&amp;dunesName='SQL:Database'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">var ipAddr = inputProperties.addresses[0][0];&#13;
+var vmName = inputProperties.resourceNames[0];&#13;
+&#13;
+System.log("IP: " + ipAddr);&#13;
+System.log("VM NAME: " + vmName);&#13;
+&#13;
+var sqlQuery = 'INSERT INTO test.vms(vmName, ipAddress) VALUES("' + vmName + '", "' + ipAddr + '");';&#13;
+&#13;
+var workflow = Server.getWorkflowWithId("028080808080808080808080808080809F808080013264596926189e8150e1493");&#13;
+var inputs = new Properties();&#13;
+&#13;
+inputs.put("database", database);&#13;
+inputs.put("query", sqlQuery);&#13;
+&#13;
+var token = workflow.execute(inputs);&#13;
+&#13;
+var outputs = token.getOutputParameters();&#13;
+System.log("Outputs: " + outputs);</script>
+        <in-binding>
+            <bind name="database" type="SQL:Database" export-name="database"/>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="170.0"/>
+    </workflow-item>
+    <presentation/>
+</ns2:workflow>

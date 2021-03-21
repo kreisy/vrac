@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="dd9bb510-0cc9-448e-a840-3d7cb639bd04" version="1.0.2" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Set net parameters]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vCACVm" type="vCAC:VirtualMachine"/>
+    <param name="vCenterVm" type="VC:VirtualMachine"/>
+    <param name="virtualMachineEntity" type="vCAC:Entity"/>
+    <param name="phase" type="string"/>
+    <param name="state" type="string"/>
+    <param name="virtualMachineOwner" type="string"/>
+    <param name="virtualMachineProperties" type="Properties"/>
+    <param name="virtualMachineName" type="string"/>
+    <param name="__tokenName" type="string"/>
+  </input>
+  <output>
+    <param name="virtualMachineEvent" type="string">
+      <description><![CDATA[fire an event on that machine - only processed by Manager Service]]></description>
+    </param>
+    <param name="virtualMachineAddOrUpdateProperties" type="Properties">
+      <description><![CDATA[properties on the machine to add/update - only processed by Manager Service]]></description>
+    </param>
+    <param name="virtualMachineDeleteProperties" type="Properties">
+      <description><![CDATA[properties to remove from the machine - only processed by Manager Service]]></description>
+    </param>
+    <param name="workflowNextState" type="string">
+      <description><![CDATA[force the workflow to a specific state - only processed by Manager Service]]></description>
+    </param>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[log]]></display-name>
+    <script encoded="false"><![CDATA[System.debug("phase :"+phase);
+System.debug("state :"+state);
+System.debug("virtualMachineOwner :"+virtualMachineOwner);
+System.debug("virtualMachineName :"+virtualMachineName);
+System.debug("vCACVm :"+vCACVm);
+System.debug("vCenterVm :"+vCenterVm);
+System.debug("virtualMachineEntity :"+virtualMachineEntity);
+
+var debugProps = "";
+if(virtualMachineProperties != null){
+var keys = virtualMachineProperties.keys.sort();
+	for each(var k in keys)
+		debugProps += "   " + k + ": " + virtualMachineProperties.get(k) + "\r\n";
+}
+else{
+	debugProps = "null";
+}
+System.debug("virtualMachineProperties :\r\n" + debugProps);]]></script>
+    <in-binding>
+      <bind name="vCACVm" type="vCAC:VirtualMachine" export-name="vCACVm"/>
+      <bind name="vCenterVm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+      <bind name="virtualMachineEntity" type="vCAC:Entity" export-name="virtualMachineEntity"/>
+      <bind name="phase" type="string" export-name="phase"/>
+      <bind name="state" type="string" export-name="state"/>
+      <bind name="virtualMachineOwner" type="string" export-name="virtualMachineOwner"/>
+      <bind name="virtualMachineProperties" type="Properties" export-name="virtualMachineProperties"/>
+      <bind name="virtualMachineName" type="string" export-name="virtualMachineName"/>
+      <bind name="__tokenName" type="string" export-name="__tokenName"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.90909090909091" x="205.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task">
+    <display-name><![CDATA[Modify network parameters]]></display-name>
+    <script encoded="false"><![CDATA[virtualMachineAddOrUpdateProperties = new Properties();
+
+ipaddress = virtualMachineProperties.get('give-ip');
+MACaddress = virtualMachineProperties.get("give-MAC");
+network = virtualMachineProperties.get("give-net"); // is actually Port Group on vDS
+hostname = virtualMachineProperties.get("give-hostname");     
+System.log("ipaddress--: " + ipaddress );
+
+virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.Address",ipaddress);
+virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.MacAddressType", "static");
+virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.MacAddress",MACaddress);
+virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.SubnetMask","255.255.255.0");
+//  virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.NetworkProfileName",network);
+virtualMachineAddOrUpdateProperties.put("VirtualMachine.Network0.Name", network);
+
+virtualMachineAddOrUpdateProperties.put("_deploymentName", hostname + "-Deployment");
+]]></script>
+    <in-binding>
+      <bind name="virtualMachineProperties" type="Properties" export-name="virtualMachineProperties"/>
+    </in-binding>
+    <out-binding>
+      <bind name="virtualMachineEvent" type="string" export-name="virtualMachineEvent"/>
+      <bind name="virtualMachineAddOrUpdateProperties" type="Properties" export-name="virtualMachineAddOrUpdateProperties"/>
+      <bind name="virtualMachineDeleteProperties" type="Properties" export-name="virtualMachineDeleteProperties"/>
+      <bind name="workflowNextState" type="string" export-name="workflowNextState"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vCACVm">
+      <desc><![CDATA[vCACVm]]></desc>
+    </p-param>
+    <p-param name="vCenterVm">
+      <desc><![CDATA[vCenterVm]]></desc>
+    </p-param>
+    <p-param name="virtualMachineEntity">
+      <desc><![CDATA[virtualMachineEntity]]></desc>
+    </p-param>
+    <p-param name="phase">
+      <desc><![CDATA[phase]]></desc>
+    </p-param>
+    <p-param name="state">
+      <desc><![CDATA[state]]></desc>
+    </p-param>
+    <p-param name="virtualMachineOwner">
+      <desc><![CDATA[virtualMachineOwner]]></desc>
+    </p-param>
+    <p-param name="virtualMachineProperties">
+      <desc><![CDATA[virtualMachineProperties]]></desc>
+    </p-param>
+    <p-param name="virtualMachineName">
+      <desc><![CDATA[virtualMachineName]]></desc>
+    </p-param>
+    <p-param name="__tokenName">
+      <desc><![CDATA[__tokenName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

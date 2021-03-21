@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="06bb86a6-2888-4810-a792-395cc052e4ba" version="0.0.11" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create User Security Group and Tag VMs]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="restHost" type="REST:RESTHost"/>
+    <param name="vCACCafeHost" type="vCACCAFE:VCACHost"/>
+  </input>
+  <attrib name="userName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="userSecurityGroup" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="userSecurityGroupId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="userSecurityTags" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="tagId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="operator" type="string" read-only="false">
+    <value encoded="n"><![CDATA[AND]]></value>
+  </attrib>
+  <attrib name="userSecurityTag" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="catalogResources" type="Array/vCACCAFE:CatalogResource" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="vCACVMs" type="Array/vCAC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="vCenterVMs" type="Array/VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Initalize Attributes]]></display-name>
+    <script encoded="false"><![CDATA[userName=System.getContext().getParameter("__asd_requestedBy");
+userSecurityGroup=userName+"-SG";
+userSecurityTag=userName+"-ST";
+userSecurityTags=new Array();
+userSecurityTags.push(userSecurityTag);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="userName" type="string" export-name="userName"/>
+      <bind name="userSecurityGroup" type="string" export-name="userSecurityGroup"/>
+      <bind name="userSecurityTags" type="Array/string" export-name="userSecurityTags"/>
+      <bind name="userSecurityTag" type="string" export-name="userSecurityTag"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.se.nsx.securityGroups/getSecurityGroupIdByName">
+    <display-name><![CDATA[getSecurityGroupIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityGroups").getSecurityGroupIdByName(restHost,securityGroupName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityGroupName" type="string" export-name="userSecurityGroup"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="userSecurityGroupId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item13" type="custom-condition" alt-out-name="item14">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if ((userSecurityGroupId==null)||(userSecurityGroupId=="")) {
+	return true;
+}
+else {
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="userSecurityGroupId" type="string" export-name="userSecurityGroupId"/>
+    </in-binding>
+    <position y="45.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <position y="172.68181818181816" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item6" type="link" linked-workflow-id="87a49fe1-7644-4798-9f07-cf1f133c9636">
+    <display-name><![CDATA[Create a security group with Dynamic Membership]]></display-name>
+    <in-binding>
+      <bind name="securityGroupName" type="string" export-name="userSecurityGroup"/>
+      <bind name="securityTags" type="Array/string" export-name="userSecurityTags"/>
+      <bind name="operator" type="string" export-name="operator"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="securityGroupId" type="string" export-name="userSecurityGroupId"/>
+    </out-binding>
+    <description><![CDATA[Create a security group (empty)]]></description>
+    <position y="55.40909090909091" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item7" type="link" linked-workflow-id="17cf4b55-52d3-4fd6-b14e-58a1f9f2df35">
+    <display-name><![CDATA[Create Security Tag]]></display-name>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagName" type="string" export-name="userSecurityTag"/>
+    </in-binding>
+    <out-binding>
+      <bind name="tagId" type="string" export-name="tagId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item8" type="task" script-module="com.vmware.se.vcac/getCatalogResourceByUserName">
+    <display-name><![CDATA[getCatalogResourceByUserName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.vcac").getCatalogResourceByUserName(vCACCafeHost,userName) ;]]></script>
+    <in-binding>
+      <bind name="vCACCafeHost" type="vCACCAFE:VCACHost" export-name="vCACCafeHost"/>
+      <bind name="userName" type="string" export-name="userName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/vCACCAFE:CatalogResource" export-name="catalogResources"/>
+    </out-binding>
+    <position y="119.04545454545453" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item0" type="task" script-module="com.vmware.se.vcac/getVCACVMfromCatalogResourceArray">
+    <display-name><![CDATA[getVCACVMfromCatalogResourceArray]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.vcac").getVCACVMfromCatalogResourceArray(catalogResources) ;]]></script>
+    <in-binding>
+      <bind name="catalogResources" type="Array/vCACCAFE:CatalogResource" export-name="catalogResources"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/vCAC:VirtualMachine" export-name="vCACVMs"/>
+    </out-binding>
+    <position y="119.04545454545453" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item10" type="task">
+    <display-name><![CDATA[Get vCenter VM from vCAC VM]]></display-name>
+    <script encoded="false"><![CDATA[vCenterVMs = new Array();
+for each (vCACVM in vCACVMs) {
+	vCenterVMs.push(System.getModule("com.vmware.se.vcac").getvCenterVmFromvCACVm(vCACVM));
+}]]></script>
+    <in-binding>
+      <bind name="vCACVMs" type="Array/vCAC:VirtualMachine" export-name="vCACVMs"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vCenterVMs" type="Array/VC:VirtualMachine" export-name="vCenterVMs"/>
+    </out-binding>
+    <position y="182.68181818181816" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item4" type="link" linked-workflow-id="53f25f12-f96d-4c68-abc5-b6846303969a">
+    <display-name><![CDATA[Apply Security Tags On Virtual Machine]]></display-name>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="vms" type="Array/VC:VirtualMachine" export-name="vCenterVMs"/>
+      <bind name="tagNames" type="Array/string" export-name="userSecurityTags"/>
+    </in-binding>
+    <out-binding/>
+    <position y="182.68181818181816" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item9" type="custom-condition" alt-out-name="item12">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if (vCACVMs.length != 0) {
+	return true;
+}
+else {
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="vCACVMs" type="Array/vCAC:VirtualMachine" export-name="vCACVMs"/>
+    </in-binding>
+    <position y="109.04545454545453" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item11" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item12" prototype-id="system-error" out-name="item11" type="task" interaction="l">
+    <display-name><![CDATA[System error]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.error("User has no Virtual Machines Catalog Resources");
+]]></script>
+    <in-binding/>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'error']]></description>
+    <position y="119.04545454545453" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item13" prototype-id="system-log" out-name="item5" type="task" interaction="l">
+    <display-name><![CDATA[System log]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.log("Unable to find Security Group for User "+userName+" VMs with the Name "+userSecurityGroup+", Creating new Security Group");
+]]></script>
+    <in-binding>
+      <bind name="userSecurityGroup" type="string" export-name="userSecurityGroup"/>
+      <bind name="userName" type="string" export-name="userName"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'log']]></description>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item14" prototype-id="system-log" out-name="item6" type="task" interaction="l">
+    <display-name><![CDATA[System log]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.log("Found Security Group for User VMs with ID "+userSecurityGroupId);
+]]></script>
+    <in-binding>
+      <bind name="userSecurityGroupId" type="string" export-name="userSecurityGroupId"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'log']]></description>
+    <position y="119.04545454545453" x="484.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="vCACCafeHost">
+      <desc><![CDATA[vCACCafeHost]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

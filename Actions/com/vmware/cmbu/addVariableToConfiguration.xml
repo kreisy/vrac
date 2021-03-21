@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="addVariableToConfiguration" result-type="string" api-version="6.0.0" id="a9c8a840-1f0d-44bb-aa3b-fe21da40854a" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cmbu">
+  <param n="configItem" t="ConfigurationElement"/>
+  <param n="variableName" t="string"/>
+  <param n="variableContent" t="Any"/>
+  <script encoded="false"><![CDATA[
+for(var element in configItem) {
+    System.log(element);
+}]]></script>
+</dunes-script-module>

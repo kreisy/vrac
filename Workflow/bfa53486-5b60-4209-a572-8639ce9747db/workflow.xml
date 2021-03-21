@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="bfa53486-5b60-4209-a572-8639ce9747db" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Event Broker Template]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="payload" type="Properties"/>
+  </input>
+  <output>
+    <param name="virtualMachineAddOrUpdateProperties" type="Properties">
+      <description><![CDATA[Updates to any of the vRA custom properties]]></description>
+    </param>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Display inputs]]></display-name>
+    <script encoded="false"><![CDATA[if (payload == null) { throw "Required workflow input not provided: payload"; }
+
+var array = hashmapToArray(payload, "payload");
+array.sort();
+var log = "";	//will contain the formatted output to log
+for each (var line in array) {
+	//Precede HashMap name with new line to separate from previous HashMap
+	if (line.indexOf(" : ") == -1) { log += "\n" + line + "\n"; }
+	//Indent HashMap key:value pair strings
+	else { log += "\t" + line + "\n"; }
+}
+System.log(log);
+
+
+function hashmapToArray(value,keyPath){
+//Purpose: Accepts a HashMap that may contain multiple levels of child HashMaps and 
+//  recursively converts them to a single-dimensional array of "path>key : value" strings.
+//value: the HashMap (aka Properties) input to convert to an array
+//keyPath: the key for each key:value pair (includes the path of any parent HashMaps)
+//	When initially called, keyPath is just the name of the original HashMap.
+	var output = new Array();
+	if (isHashmap(value)) {
+		//add the name of the HashMap
+		output = output.concat([keyPath]);
+		//add the key pairs within the HashMap
+		for each (var key in value.keys) {
+			var child = value.get(key);
+			output = output.concat( hashmapToArray(child,keyPath + ">" + key) );
+		}
+	}
+	else { //recursive base case: the value is not another HashMap
+		//Insert a space into keyPath after the last >, to help with sorting
+		var newKey = replaceLast(keyPath,">","> ");
+		//write the key:value string to the array
+		output = output.concat( [newKey + " : " + value] );
+	}
+	return output;
+}
+
+function isHashmap(value){
+	if (typeof value != "object") {return false;}
+	if (value == null) {return false;}
+	if (value.constructor.toString().indexOf("Properties()") == -1) {return false;}
+	return true;
+}
+
+function replaceLast(str,findSubStr,replSubStr){
+//Replaces the last occurrence of a substring with a new substring
+//Returns the updated string
+	var pos = str.lastIndexOf(findSubStr);
+	var beginning = str.slice(0,pos);
+	var end = str.slice(pos);
+	end = end.replace(findSubStr,replSubStr);
+	return(beginning + end);
+}]]></script>
+    <in-binding>
+      <bind name="payload" type="Properties" export-name="payload"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task">
+    <display-name><![CDATA[Add/Update Props]]></display-name>
+    <script encoded="false"><![CDATA[//Update or add any Custom Properties here, for example:
+//virtualMachineAddOrUpdateProperties = new Properties();
+//virtualMachineAddOrUpdateProperties.put('VirtualMachine.Network0.Name', 'dvPortGroup');
+
+]]></script>
+    <in-binding>
+      <bind name="payload" type="Properties" export-name="payload"/>
+    </in-binding>
+    <out-binding>
+      <bind name="virtualMachineAddOrUpdateProperties" type="Properties" export-name="virtualMachineAddOrUpdateProperties">
+        <description><![CDATA[Custom or system properties that were modified by the vRO workflow and returned to vRA]]></description>
+      </bind>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="payload">
+      <desc><![CDATA[payload]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="13bd8ff4-6b2d-4c92-922b-58e8af0241eb" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[cl-snapshot]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="VMname" type="string"/>
+  </input>
+  <attrib name="vmID" type="VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="380.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="link" linked-workflow-id="BD8080808080808080808080808080800FC180800122528313869552e41805bb1">
+    <display-name><![CDATA[Workflow element]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vmID">
+        <description><![CDATA[The virtual machine from which to remove all snapshots]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="260.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[vmID=VMname]]></script>
+    <in-binding>
+      <bind name="VMname" type="string"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmID" type="VC:VirtualMachine" export-name="vmID"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="70.0" x="160.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

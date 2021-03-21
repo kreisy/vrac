@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllVmMorefAttachToSecurityTag" result-type="Array/string" api-version="6.0.0" id="486fee84-74e2-481c-a831-d3778df2a844" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityTag">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="tagId" t="string"/>
+  <script encoded="false"><![CDATA[var vmMorefArray = new Array();
+var tagsRequest = restHost.createRequest("GET", "api/2.0/services/securitytags/tag/"+tagId+"/vm");
+tagsRequest.contentType = "application/xml";
+System.log("Request URL: " + tagsRequest.fullUrl);
+var response = tagsRequest.execute();
+
+if(response.statusCode != 200) throw("Could not get security tag ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var vmAssignToTagXml = new XML(response.contentAsString);
+if (vmAssignToTagXml=="")
+{	
+	return(vmMorefArray);
+}
+else
+{
+	System.log("Total Number of VMs assign to tag: " + vmAssignToTagXml.length());
+	if (vmAssignToTagXml.length() != 0)
+	{
+		for each (var vm in vmAssignToTagXml.basicinfo)
+		{
+			System.log("VM: " + vm.name + " is assigned to tag. moRef: " + vm.objectId);
+			vmMorefArray.push(vm.objectId.toString());
+		}
+	}
+	return vmMorefArray;
+}]]></script>
+</dunes-script-module>

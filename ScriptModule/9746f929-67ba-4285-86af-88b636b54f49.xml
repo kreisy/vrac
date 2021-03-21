@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFolderByName" result-type="VC:VmFolder" api-version="6.0.0" id="9746f929-67ba-4285-86af-88b636b54f49" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cliebner">
+  <param n="Department" t="string"><![CDATA[Ordner der gesucht werden soll]]></param>
+  <script encoded="false"><![CDATA[var Folders = VcPlugin.getAllVmFolders();
+System.log("Department: "+Department);
+for (i in Folders){
+	System.log(Folders[i].name);
+	if (Folders[i].name == Department) {
+		return Folders[i];
+		System.log("Folder="+Folders[i].name);
+	}
+	else {
+		System.log("Es wurde kein Ordner gefunden");
+	}
+}]]></script>
+</dunes-script-module>

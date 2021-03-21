@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="newFwSection" result-type="string" api-version="6.0.0" id="df0abe97-f40b-4dd1-886d-7a5569dfb10a" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="sectionName" t="string"/>
+  <script encoded="false"><![CDATA[var sectionXml = new XML('<section><rule/></section>');
+sectionXml.@name = sectionName;
+sectionXml.rule.@disabled = "true";
+sectionXml.rule.name = "";
+sectionXml.rule.action = "DENY"
+
+var request = restHost.createRequest("POST", "/api/4.0/firewall/globalroot-0/config/layer3sections", sectionXml.toString());
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+
+var response = request.execute();
+
+if(response.statusCode != 201) throw("Could not create FW section ! : " + response.statusCode + "\n" + response.contentAsString);
+
+responseXml = new XML(response.contentAsString);
+return responseXml.@id.toString();
+
+
+]]></script>
+</dunes-script-module>

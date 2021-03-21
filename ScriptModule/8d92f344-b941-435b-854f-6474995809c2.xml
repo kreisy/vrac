@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="newFwIpSet" result-type="string" api-version="6.0.0" id="8d92f344-b941-435b-854f-6474995809c2" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="ipSetName" t="string"/>
+  <param n="desc" t="string"/>
+  <param n="rangeBegin" t="string"/>
+  <param n="rangeEnd" t="string"/>
+  <script encoded="false"><![CDATA[var ipSetXml = new XML('<ipset></ipset>');
+ipSetXml.name = ipSetName;
+ipSetXml.description = desc;
+ipSetXml.revision = "0";
+ipSetXml.value = rangeBegin+"-"+rangeEnd;
+
+var request = restHost.createRequest("POST", "/api/2.0/services/ipset/globalroot-0", ipSetXml.toString());
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+System.log(ipSetXml);
+var response = request.execute();
+
+if(response.statusCode != 201) throw("Could not create FW IP Set ! : " + response.statusCode + "\n" + response.contentAsString);
+
+responseXml = new XML(response.contentAsString);
+System.log("Successfuly create new IP set with ID: "+responseXml);
+return responseXml.toString();
+
+]]></script>
+</dunes-script-module>

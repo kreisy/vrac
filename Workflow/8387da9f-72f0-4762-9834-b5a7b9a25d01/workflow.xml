@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="8387da9f-72f0-4762-9834-b5a7b9a25d01" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vCAC Remove Machine from AD]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="computerName" type="string">
+      <description><![CDATA[Name of the computer]]></description>
+    </param>
+    <param name="ouName" type="string"/>
+  </input>
+  <attrib name="actionResult" type="AD:ComputerAD" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="container" type="AD:OrganizationalUnit" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="link" linked-workflow-id="958080808080808080808080808080805681808001175609873343b6bbd2e3eea">
+    <display-name><![CDATA[Destroy a computer]]></display-name>
+    <in-binding>
+      <bind name="computer" type="AD:ComputerAD" export-name="actionResult">
+        <description><![CDATA[Computer to destroy]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Deletes a computer from an Active Directory instance.]]></description>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="task" script-module="com.vmware.library.microsoft.activeDirectory/getComputerFromContainer">
+    <display-name><![CDATA[getComputerFromContainer]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.microsoft.activeDirectory").getComputerFromContainer(container,computerName) ;]]></script>
+    <in-binding>
+      <bind name="container" type="Any" export-name="container">
+        <description><![CDATA[Organizationl Unit / Group]]></description>
+      </bind>
+      <bind name="computerName" type="string" export-name="computerName">
+        <description><![CDATA[Name of the computer]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="AD:ComputerAD" export-name="actionResult"/>
+    </out-binding>
+    <description><![CDATA[Get a computer by his name in the given OU or Group (container)]]></description>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var groups = ActiveDirectory.search("OrganizationalUnit", ouName);
+if (groups.length >1)
+{
+     throw "Multiple matching groups found: " + ou;
+}
+if (groups.length < 1)
+{
+     throw "No matching group found: " + ou;
+}
+var container = groups[0];
+System.log("group: " + container);]]></script>
+    <in-binding>
+      <bind name="ouName" type="string" export-name="ouName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="container" type="AD:OrganizationalUnit" export-name="container"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="computerName">
+      <desc><![CDATA[Name of the computer]]></desc>
+    </p-param>
+    <p-param name="ouName">
+      <desc><![CDATA[ouName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

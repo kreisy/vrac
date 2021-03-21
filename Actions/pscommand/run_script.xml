@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="run_script" result-type="string" api-version="6.0.0" id="2ea1a8a4-2e34-4750-a8b2-5e4649091e5f" version="0.1.0" allowed-operations="evf" category-name="pscommand" memory-limit="512000000" timeout="1200">
+  <description><![CDATA[Runs script in Guest]]></description>
+  <runtime><![CDATA[powercli:11-powershell-6.2]]></runtime>
+  <param n="machinename" t="string"/>
+  <param n="vcfqdn" t="string"/>
+  <param n="vcuser" t="string"/>
+  <param n="vcpassword" t="SecureString"/>
+  <param n="script" t="string"/>
+  <param n="remoteuser" t="string"/>
+  <param n="remotepassword" t="SecureString"/>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    $inputsString = $inputs | ConvertTo-Json -Compress
+    Write-Host "Inputs were $inputsString"
+    $vcfqdn = $inputs.vcfqdn
+    $vcuser = $inputs.vcuser
+    $vcpassword = $inputs.vcpassword
+    $script = $inputs.script
+    $remoteuser = $inputs.remoteuser
+    $remotepassword = $inputs.remotepassword
+    $name = $inputs.machinename
+    Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false
+    Connect-VIServer $vcfqdn -User $vcuser -Password $vcpassword
+    $vm = Get-vm -name $name
+    $result = Invoke-VMScript -VM $vm -ScriptText $script -GuestUser $remoteuser -GuestPassword $remotepassword -ToolsWaitSecs 300
+    Write-Host $result.ScriptOutput
+    $output=@{status = 'done'}
+
+    return $output
+}
+]]></script>
+</dunes-script-module>

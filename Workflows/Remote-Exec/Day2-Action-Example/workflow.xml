@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="213037d9-642c-43c6-9c61-fe33a50dd2e7" version="0.0.0" api-version="6.0.0" allowed-operations="evf" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Day2-Action-Example]]></display-name>
+  <description><![CDATA[Example Day2 Action associated to a custom resource in vRA.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="reboot" type="boolean"/>
+    <param name="script" type="string"/>
+  </input>
+  <output>
+    <param name="actionResult" type="string"/>
+  </output>
+  <attrib name="machinename" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcfqdn" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcuser" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcpassword" type="SecureString" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="remoteuser" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="remotepassword" type="SecureString" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="500.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Get Prop Values]]></display-name>
+    <script encoded="false"><![CDATA[var resourceProperties = System.getContext().getParameter("__metadata_resourceProperties");
+for(var propertyName in resourceProperties) {
+    propertyValue = resourceProperties[propertyName]
+    if (propertyName == "machinename"){
+        machinename = propertyValue;
+    }
+    if (propertyName == "vcfqdn"){
+        vcfqdn = propertyValue;
+    }
+    if (propertyName == "vcuser"){
+        vcuser = propertyValue;
+    }
+    if (propertyName == "vcpassword"){
+        vcpassword = propertyValue;
+    }
+    if (propertyName == "remoteuser"){
+        remoteuser = propertyValue;
+    }
+    if (propertyName == "remotepassword"){
+        remotepassword = propertyValue;
+    }
+    //System.log(propertyName+": "+propertyValue);
+}]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="machinename" type="string" export-name="machinename"/>
+      <bind name="vcfqdn" type="string" export-name="vcfqdn"/>
+      <bind name="vcuser" type="string" export-name="vcuser"/>
+      <bind name="vcpassword" type="SecureString" export-name="vcpassword"/>
+      <bind name="remoteuser" type="string" export-name="remoteuser"/>
+      <bind name="remotepassword" type="SecureString" export-name="remotepassword"/>
+    </out-binding>
+    <description><![CDATA[Gets property values from custom resource]]></description>
+    <position y="60.0" x="160.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="2ffbd90b-caf7-4589-b969-3c314c6d79ec">
+    <display-name><![CDATA[Remote Script Runner]]></display-name>
+    <in-binding>
+      <bind name="machinename" type="string" export-name="machinename"/>
+      <bind name="vcfqdn" type="string" export-name="vcfqdn"/>
+      <bind name="vcuser" type="string" export-name="vcuser"/>
+      <bind name="vcpassword" type="SecureString" export-name="vcpassword"/>
+      <bind name="script" type="string" export-name="script"/>
+      <bind name="remoteuser" type="string" export-name="remoteuser"/>
+      <bind name="remotepassword" type="SecureString" export-name="remotepassword"/>
+      <bind name="reboot" type="boolean" export-name="reboot">
+        <description><![CDATA[Is reboot required]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="actionResult"/>
+    </out-binding>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="360.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task">
+    <display-name><![CDATA[script builder]]></display-name>
+    <script encoded="false"><![CDATA[// Use this task to modify script command before passing to the action]]></script>
+    <in-binding/>
+    <out-binding/>
+    <description><![CDATA[Use this task to modify variables for script.]]></description>
+    <position y="60.0" x="250.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

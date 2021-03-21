@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item9" object-name="Workflow:name=generic" id="de59dacc-bc39-4135-a124-aed558b2f443" version="0.3.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Copy of Add host to cluster]]></display-name>
+  <description><![CDATA[Adds a host to the cluster. This workflow fails if it cannot authenticate the SSL certificate of the host.]]></description>
+  <ref-types><![CDATA[>(VC:ClusterComputeResource)]]></ref-types>
+  <position y="10.0" x="160.0"/>
+  <input>
+    <param name="cluster" type="VC:ClusterComputeResource">
+      <description><![CDATA[Parent cluster]]></description>
+    </param>
+    <param name="asConnected" type="boolean">
+      <description><![CDATA[Connect the host as soon as it is added to the cluster]]></description>
+    </param>
+    <param name="resourcePool" type="VC:ResourcePool">
+      <description><![CDATA[Resource pool for the root resource pool of the host]]></description>
+    </param>
+    <param name="force" type="boolean">
+      <description><![CDATA[Connect even if the host is already being managed by another vCenter server]]></description>
+    </param>
+    <param name="hostName" type="string">
+      <description><![CDATA[DNS name or IP address of the host]]></description>
+    </param>
+    <param name="port" type="number">
+      <description><![CDATA[Port number for the connection (default = 902)]]></description>
+    </param>
+    <param name="userName" type="string">
+      <description><![CDATA[Host administrator user account]]></description>
+    </param>
+    <param name="password" type="SecureString">
+      <description><![CDATA[Host administrator's password]]></description>
+    </param>
+    <param name="vmFolder" type="VC:VmFolder">
+      <description><![CDATA[Folder in which to store the host's existing virtual machines]]></description>
+    </param>
+    <param name="license" type="string">
+      <description><![CDATA[License key for the host]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="newHost" type="VC:HostSystem">
+      <description><![CDATA[Host to add to the cluster]]></description>
+    </param>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="Supertest" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item9" out-name="item0" type="task">
+    <display-name><![CDATA[Add host]]></display-name>
+    <script encoded="false"><![CDATA[// define default if params is null
+if (asConnected == null) asConnected = true;
+if (force == null) force = false;
+if (port == null) port = 443;
+if (license == "") license = null;
+
+var hostConnectSpec = new VcHostConnectSpec();
+hostConnectSpec.force = force;
+hostConnectSpec.hostName = hostName;
+hostConnectSpec.port = port;
+hostConnectSpec.userName = userName;
+hostConnectSpec.password = password;
+if (vmFolder != null) hostConnectSpec.vmFolder = vmFolder.reference;
+
+// Try to add the host to the cluster
+var addHostToClusterTask = cluster.addHost_Task(hostConnectSpec, asConnected, resourcePool, license);
+
+try {
+    System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(addHostToClusterTask, progress, pollRate);
+} catch (e) {
+    //Nothing to do.
+}
+
+// If the there is an error and the fault contains thumbprint - take it and try again
+if (addHostToClusterTask.info.state == VcTaskInfoState.error &&
+        addHostToClusterTask.info.error.fault != null &&
+        addHostToClusterTask.info.error.fault.thumbprint != null) {
+    hostConnectSpec.sslThumbprint = addHostToClusterTask.info.error.fault.thumbprint;
+    task = cluster.addHost_Task(hostConnectSpec, asConnected, resourcePool, license);
+} else {
+    task = addHostToClusterTask;
+}]]></script>
+    <in-binding>
+      <bind name="cluster" type="VC:ClusterComputeResource" export-name="cluster"/>
+      <bind name="asConnected" type="boolean" export-name="asConnected"/>
+      <bind name="force" type="boolean" export-name="force"/>
+      <bind name="hostName" type="string" export-name="hostName"/>
+      <bind name="port" type="number" export-name="port"/>
+      <bind name="userName" type="string" export-name="userName"/>
+      <bind name="password" type="SecureString" export-name="password"/>
+      <bind name="vmFolder" type="VC:VmFolder" export-name="vmFolder"/>
+      <bind name="resourcePool" type="VC:ResourcePool" export-name="resourcePool"/>
+      <bind name="license" type="string" export-name="license"/>
+      <bind name="progress" type="boolean" export-name="progress"/>
+      <bind name="pollRate" type="number" export-name="pollRate"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="80.0" x="120.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="newHost"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="140.0" x="120.0"/>
+  </workflow-item>
+  <workflow-item name="item1" type="end" end-mode="0">
+    <position y="190.0" x="160.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="cluster">
+      <desc><![CDATA[Parent cluster]]></desc>
+      <p-qual name="mandatory"><![CDATA[true]]></p-qual>
+      <p-qual name="contextualParameter"><![CDATA[]]></p-qual>
+    </p-param>
+    <p-param name="asConnected">
+      <desc><![CDATA[Connect the host as soon as it is added to the cluster]]></desc>
+      <p-qual name="defaultValue"><![CDATA[S|boolean|true]]></p-qual>
+    </p-param>
+    <p-param name="resourcePool">
+      <desc><![CDATA[Resource pool for the root resource pool of the host]]></desc>
+    </p-param>
+    <p-param name="license">
+      <desc><![CDATA[License key for the host]]></desc>
+    </p-param>
+    <p-step>
+      <title><![CDATA[Connection spec]]></title>
+      <p-param name="force">
+        <desc><![CDATA[Force connection if already managed by another vCenter Server]]></desc>
+        <p-qual name="defaultValue"><![CDATA[S|boolean|false]]></p-qual>
+      </p-param>
+      <p-param name="hostName">
+        <desc><![CDATA[DNS name or IP address of the host]]></desc>
+        <p-qual name="mandatory"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="port">
+        <desc><![CDATA[Port number]]></desc>
+        <p-qual kind="static" name="defaultValue" type="number"><![CDATA[443.0]]></p-qual>
+        <p-qual kind="static" name="numberFormat" type="String"><![CDATA[#]]></p-qual>
+        <p-qual name="minNumberValue"><![CDATA[1.0]]></p-qual>
+      </p-param>
+      <p-param name="userName">
+        <desc><![CDATA[Administrator account]]></desc>
+        <p-qual name="mandatory"><![CDATA[true]]></p-qual>
+        <p-qual name="defaultValue"><![CDATA[S|string|root]]></p-qual>
+      </p-param>
+      <p-param name="password">
+        <desc><![CDATA[Administrator's password]]></desc>
+        <p-qual name="mandatory"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="vmFolder">
+        <desc><![CDATA[Folder for discovered virtual machines]]></desc>
+        <p-qual name="mandatory"><![CDATA[false]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

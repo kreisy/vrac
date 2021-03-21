@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="6cb1dcc6-b452-43d9-967e-ca859de10cf5" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRA Properties (CSV)]]></display-name>
+  <description><![CDATA[Workflow template to use for vCAC extensibility
+
+Input parameters can be used using vCAC VM properties using the format ExternalWFStubs.[workflow stub name].[vCO input parameter name]. If using plug-in types you need to pass their unique vCO IDs.
+
+Input parameters was tested successfully with : 
+- string
+- plug-in input types
+- number
+- boolean
+]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vCACVm" type="vCAC:VirtualMachine">
+      <description><![CDATA[vCAC virtual machine]]></description>
+    </param>
+    <param name="vCenterVm" type="VC:VirtualMachine">
+      <description><![CDATA[VC virtual machine]]></description>
+    </param>
+    <param name="vCACVmProperties" type="Properties">
+      <description><![CDATA[vCAC virtual machine properties]]></description>
+    </param>
+  </input>
+  <attrib name="smtpHost" type="string" read-only="false">
+    <value encoded="n"><![CDATA[172.16.0.10]]></value>
+  </attrib>
+  <attrib name="smtpPort" type="string" read-only="false">
+    <value encoded="n"><![CDATA[25]]></value>
+  </attrib>
+  <attrib name="fromAddress" type="string" read-only="false">
+    <value encoded="n"><![CDATA[vra@vpod.local]]></value>
+  </attrib>
+  <attrib name="fromName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[vRA]]></value>
+  </attrib>
+  <attrib name="toAddress" type="string" read-only="false">
+    <value encoded="n"><![CDATA[cliebner@vpod.local]]></value>
+  </attrib>
+  <attrib name="subject" type="string" read-only="false">
+    <value encoded="n"><![CDATA[vRA Properties from VM]]></value>
+  </attrib>
+  <attrib name="content" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Please find the file attached!]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Display inputs]]></display-name>
+    <script encoded="false"><![CDATA[var blueprint = System.getContext().getParameter("__asd_composition_blueprintId");
+var component = System.getContext().getParameter("__asd_composition_componentId");
+var user = System.getContext().getParameter("__asd_requestedFor");
+var tenant = System.getContext().getParameter("__asd_tenantRef");
+
+var host = vCACCAFEHostManager.getDefaultHostForTenant(tenant , true);
+
+System.log("BP-ID:" + blueprint + ", CP-ID:" + component + ", User:" + user + ", Tenant:" + tenant + ", Host:" + host);
+
+
+
+System.log("Got vCAC virtual machine " + vCACVm.virtualMachineName);
+
+//If you do not get a vApp or VM it is likely that it is not accessible at the stage of the vCAC process
+
+if (vCenterVm != null) {
+	System.log("Got vCloud VM " + vCenterVm.name);
+}
+				
+//Displaying vCAC VM properties
+if (vCACVmProperties != null) {
+	var log = "";
+	log += "vCAC VM properties :\n";
+	var array = new Array();
+	for each (var key in vCACVmProperties.keys) {
+		array.push(key + " : " + vCACVmProperties.get(key));	
+	}
+	array.sort();
+	
+	for each (var line in array) {
+		log += "\t" + line + "\n";
+	}	
+	System.log(log);	
+}
+
+]]></script>
+    <in-binding>
+      <bind name="vCACVm" type="vCAC:VirtualMachine" export-name="vCACVm"/>
+      <bind name="vCenterVm" type="VC:VirtualMachine" export-name="vCenterVm"/>
+      <bind name="vCACVmProperties" type="Properties" export-name="vCACVmProperties"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="task">
+    <display-name><![CDATA[create CSV]]></display-name>
+    <script encoded="false"><![CDATA[
+System.log("================================================================================================================");
+System.log("============================================Create CSV====================================================================");
+System.log("================================================================================================================");
+System.log("================================================================================================================");
+
+//Open the CSV file and prepare to write
+var csvFile = new FileWriter(System.getTempDirectory() + "/vRA_properties.csv");
+csvFile.open();
+csvFile.clean();
+// Write CSV headers to file using function (writeHeader)
+csvFile.write(writeHeader());
+
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function writeHeader() {
+	
+	if (vCACVmProperties != null) {
+	var varHeader = "";
+	for each (var key in vCACVmProperties.keys) {
+	varHeader = varHeader + key + ",";	
+	}
+	}
+	System.log("================================================================================================================");
+	System.log("============================================CSV Header==========================================================");
+	System.log("================================================================================================================");
+	System.log("================================================================================================================");
+	System.log(varHeader);
+	varHeader = varHeader.replace(/,+$/, "\n"); //check if the last character is a comma and replace with end line
+	return(varHeader);
+}
+
+// Write CSV headers to file using function (writeHeader)
+csvFile.write(writeProperties());
+
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function writeProperties() {
+	
+	if (vCACVmProperties != null) {
+	var key ="";
+	var newproperty = "";
+	var results = []; //Array for reported items
+	for each (var key in vCACVmProperties.keys) {	
+	newproperty = vCACVmProperties.get(key);
+	newproperty = newproperty.replace( /,/g, "" );
+	results.push(newproperty)
+	}
+	}
+	System.log("================================================================================================================");
+	System.log("============================================CSV Result==========================================================");
+	System.log("================================================================================================================");
+	System.log("================================================================================================================");
+	System.log(results);
+	return(results);
+	}
+	
+System.log("===============================================================================================================");
+System.log("=============================================CSV-END===========================================================");
+System.log("===============================================================================================================");
+//Close CSV file
+csvFile.close();
+
+System.log("================================================================================================================");
+System.log("============================================Create CSV List===============================================================");
+System.log("================================================================================================================");
+System.log("================================================================================================================");
+
+//Open the CSV file and prepare to write
+var csvFile = new FileWriter(System.getTempDirectory() + "/vRA_property_list.csv");
+csvFile.open();
+csvFile.clean();
+// Write CSV headers to file using function (writeHeader)
+csvFile.write(writeHeader2());
+
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function writeHeader2() {
+	
+	if (vCACVmProperties != null) {
+	var varHeader = "";
+	varHeader = "Property,Value" + "\n";	
+	}
+	System.log("================================================================================================================");
+	System.log("============================================CSV Header List=====================================================");
+	System.log("================================================================================================================");
+	System.log("================================================================================================================");
+	System.log(varHeader);
+	return(varHeader);
+}
+
+// Write CSV headers to file using function (writeHeader)
+csvFile.write(writeProperties2());
+
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function writeProperties2() {
+	
+	if (vCACVmProperties != null) {
+	var key ="";
+	var newproperty = "";
+	var results = []; //Array for reported items
+	for each (var key in vCACVmProperties.keys) {
+	newproperty = vCACVmProperties.get(key);
+	newproperty = newproperty.replace( /,/g, "" );	
+	results = results + key + "," + newproperty + "\n";
+	}
+	}
+	System.log("================================================================================================================");
+	System.log("============================================CSV Result List=====================================================");
+	System.log("================================================================================================================");
+	System.log("================================================================================================================");
+	System.log(results);
+	return(results);
+	}
+	
+System.log("===============================================================================================================");
+System.log("=============================================CSV-END List======================================================");
+System.log("===============================================================================================================");
+//Close CSV file
+csvFile.close();
+
+]]></script>
+    <in-binding>
+      <bind name="vCACVmProperties" type="Properties" export-name="vCACVmProperties"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" type="task">
+    <display-name><![CDATA[send CSV]]></display-name>
+    <script encoded="false"><![CDATA[var message = new EmailMessage();
+ // Override default settings if and only if input parameter is set
+	if ( smtpHost != null && smtpHost.length > 0 ){
+	    message.smtpHost = smtpHost;
+	}
+	if ( smtpPort != null && smtpPort > 0 ){
+	    message.smtpPort = smtpPort;
+	}
+	if ( fromName != null && fromName.length > 0){
+	    message.fromName = fromName;
+	}
+	if ( fromAddress != null && fromAddress.length > 0){
+	    message.fromAddress = fromAddress;
+	}
+message.toAddress = toAddress;
+message.subject = subject;
+message.addMimePart(content,"text/html; charset=UTF-8");
+//Create Attachment
+	var fileAttachment = new MimeAttachment(System.getTempDirectory() + "/vRA_properties.csv");
+	fileAttachment.name = "vRA_properties.csv";
+	message.addMimePart(fileAttachment, fileAttachment.mimeType);
+	var fileAttachment2 = new MimeAttachment(System.getTempDirectory() + "/vRA_property_list.csv");
+	fileAttachment2.name = "vRA_property_list.csv";
+	message.addMimePart(fileAttachment2, fileAttachment2.mimeType);
+ System.log( "sending mail to host: " + message.smtpHost + ":" + message.smtpPort + " with user:" + message.username + ", from:" + message.fromAddress + ", to:" + message.toAddress );
+ message.sendMessage();]]></script>
+    <in-binding>
+      <bind name="smtpHost" type="string" export-name="smtpHost"/>
+      <bind name="smtpPort" type="string" export-name="smtpPort"/>
+      <bind name="fromAddress" type="string" export-name="fromAddress"/>
+      <bind name="fromName" type="string" export-name="fromName"/>
+      <bind name="toAddress" type="string" export-name="toAddress"/>
+      <bind name="subject" type="string" export-name="subject"/>
+      <bind name="content" type="string" export-name="content"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vCACVm">
+      <desc><![CDATA[vCACVm]]></desc>
+    </p-param>
+    <p-param name="vCenterVm">
+      <desc><![CDATA[vCenterVm]]></desc>
+    </p-param>
+    <p-param name="vCACVmProperties">
+      <desc><![CDATA[vCACVmProperties]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

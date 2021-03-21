@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="0c3a78d1-6898-4e59-84f6-7ec5d0a05f60" version="0.0.6" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Detach VM from Security Tag]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine"/>
+    <param name="securityTag" type="string"/>
+    <param name="restHost" type="REST:RESTHost"/>
+  </input>
+  <attrib name="securityTagId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="allTagVmMoref" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="vmMoref" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="944.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.se.nsx.securityTag/getSecurityTagIdByName">
+    <display-name><![CDATA[getSecurityTagIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityTag").getSecurityTagIdByName(restHost,tagName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagName" type="string" export-name="securityTag"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="securityTagId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" type="task" script-module="com.vmware.se.nsx.securityTag/getAllVmMorefAttachToSecurityTag">
+    <display-name><![CDATA[getAllVmMorefAttachToSecurityTag]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityTag").getAllVmMorefAttachToSecurityTag(restHost,tagId) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagId" type="string" export-name="securityTagId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="allTagVmMoref"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item6" type="custom-condition" alt-out-name="item4">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[for each (var moRef in allTagVmMoref)
+{
+	if (moRef==vmMoref)
+	{	
+		return true;
+	}
+}
+return false;]]></script>
+    <in-binding>
+      <bind name="allTagVmMoref" type="Array/string" export-name="allTagVmMoref"/>
+      <bind name="vmMoref" type="string" export-name="vmMoref"/>
+    </in-binding>
+    <position y="45.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <position y="109.04545454545453" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item3" type="task">
+    <display-name><![CDATA[get moref from vm]]></display-name>
+    <script encoded="false"><![CDATA[vmMoref=vm.reference.value;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmMoref" type="string" export-name="vmMoref"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item0" type="task" script-module="com.vmware.se.nsx.securityTag/detachVmFromTag">
+    <display-name><![CDATA[detachVmFromTag]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.se.nsx.securityTag").detachVmFromTag(vmMoRef,restHost,tagId) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagId" type="string" export-name="securityTagId"/>
+      <bind name="vmMoRef" type="string" export-name="vmMoref"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.90909090909091" x="765.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="securityTag">
+      <desc><![CDATA[securityTag]]></desc>
+      <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.securityTag","getAllSecurityTags").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="vm">
+      <desc><![CDATA[vm]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

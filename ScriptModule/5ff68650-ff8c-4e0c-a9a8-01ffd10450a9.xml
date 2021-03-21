@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSecurityTagIdByName" result-type="string" api-version="6.0.0" id="5ff68650-ff8c-4e0c-a9a8-01ffd10450a9" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityTag">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="tagName" t="string"/>
+  <script encoded="false"><![CDATA[var tagsRequest = restHost.createRequest("GET", "api/2.0/services/securitytags/tag");
+tagsRequest.contentType = "application/xml";
+System.log("Request URL: " + tagsRequest.fullUrl);
+var response = tagsRequest.execute();
+
+if(response.statusCode != 200) throw("Could not get security tag ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var securityTagsXml = new XML(response.contentAsString);
+var tag = securityTagsXml.securityTag.(name == tagName);
+
+System.log("Security Tag ID: " + tag.objectId.toString());
+return tag.objectId.toString();
+]]></script>
+</dunes-script-module>

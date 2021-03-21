@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSecurityPolicyIdByName" result-type="string" api-version="6.0.0" id="1b417f23-3979-4b90-ab07-c78af5ee395f" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityPolicies">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="securityPolicyName" t="string"/>
+  <script encoded="false"><![CDATA[// restHost = RESTHostManager.getHost("da538741-4481-4cf1-a1ff-1f94b89a3619");
+var request = restHost.createRequest("GET", "/api/2.0/services/policy/securitypolicy/all");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not get security policy list ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var securityPoliciesXml = new XML(response.contentAsString);
+
+var securityPolicy = securityPoliciesXml.securityPolicy.(name == securityPolicyName);
+if (securityPolicy != "")
+{
+	System.log(securityPolicy.objectId.toString());
+	return securityPolicy.objectId.toString();
+}
+else
+{
+	throw("Unable to find security policy with the name: " + securityPolicyName);
+}
+
+]]></script>
+</dunes-script-module>

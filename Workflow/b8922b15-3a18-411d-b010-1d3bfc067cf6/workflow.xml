@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="b8922b15-3a18-411d-b010-1d3bfc067cf6" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vCAC Add Machine to AD]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="computerName" type="string">
+      <description><![CDATA[Name for the new computer]]></description>
+    </param>
+    <param name="ou" type="string">
+      <description><![CDATA[Parent organizational unit for the new computer]]></description>
+    </param>
+  </input>
+  <attrib name="domainName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Domain name in form: company.sample (optional)]]></description>
+  </attrib>
+  <attrib name="newComputer" type="AD:ComputerAD" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="group" type="AD:OrganizationalUnit" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="error" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="504.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" catch-name="item0" throw-bind-name="error" type="link" linked-workflow-id="958080808080808080808080808080804C81808001175609873343b6bbd2e3eea">
+    <display-name><![CDATA[Create a computer in an organizational unit]]></display-name>
+    <in-binding>
+      <bind name="ou" type="AD:OrganizationalUnit" export-name="group">
+        <description><![CDATA[Parent organizational unit for the new computer]]></description>
+      </bind>
+      <bind name="computerName" type="string" export-name="computerName">
+        <description><![CDATA[Name for the new computer]]></description>
+      </bind>
+      <bind name="domainName" type="string" export-name="domainName">
+        <description><![CDATA[Domain name in form: company.sample (optional)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="newComputer" type="AD:ComputerAD" export-name="newComputer"/>
+    </out-binding>
+    <description><![CDATA[Creates an Active Directory computer in an organizational unit.]]></description>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var groups = ActiveDirectory.search("OrganizationalUnit", ou);
+if (groups.length >1)
+{
+     throw "Multiple matching groups found: " + ou;
+}
+if (groups.length < 1)
+{
+     throw "No matching group found: " + ou;
+}
+var group = groups[0];
+System.log("group: " + group);]]></script>
+    <in-binding>
+      <bind name="ou" type="string" export-name="ou">
+        <description><![CDATA[Parent organizational unit for the new computer]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="group" type="AD:OrganizationalUnit" export-name="group"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="computerName">
+      <desc><![CDATA[Name for the new computer]]></desc>
+    </p-param>
+    <p-param name="ou">
+      <desc><![CDATA[Parent organizational unit for the new computer]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

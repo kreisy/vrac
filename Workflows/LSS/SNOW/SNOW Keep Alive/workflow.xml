@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="76f5ea90-2914-4df1-8ab5-b6c4f33959d3" editor-version="1.6" version="0.0.2" api-version="6.0.0" allowed-operations="fve" restartMode="1" resumeFromFailedMode="0">
+    <display-name>SNOW Keep Alive</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output>
+        <param name="sysId" type="string"/>
+    </output>
+    <attrib name="snowVraVmSoapHost" type="SOAP:Host">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='a292c560-fedb-4343-8ed4-b686716bff0b'&amp;dunesName='SOAP:Host'</value>
+    </attrib>
+    <attrib name="errorCode" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="45.40909090909091" x="524.5"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" catch-name="item2" throw-bind-name="errorCode" type="task" comparator="0">
+        <display-name>Keep SNOW Alive</display-name>
+        <script encoded="false">var operation = soapHost.getOperation("insert");
+if (operation == null) throw "soap operation 'insert' not found!";
+
+System.log("creating soap request:");
+var request = operation.createSOAPRequest();
+
+request.setInParameter("u_active",'true');
+request.setInParameter("u_name",'Keep Alive');
+
+System.log("invoking '" + operation.name + "' operation...");
+var response = operation.invoke(request);
+System.log("operation '" + operation.name + "' successfully invoked.");
+
+System.log(response);
+
+System.log("out headers...");
+var outHeaders = System.getModule("com.vmware.library.soap").processOutHeaders(response);
+
+System.log("out parameters...");
+var outParameters = System.getModule("com.vmware.library.soap").processOutParameters(response);
+
+System.log("run it again to reset...");
+
+System.log("creating soap request:");
+var request = operation.createSOAPRequest();
+
+request.setInParameter("u_active",'false');
+request.setInParameter("u_name",'Keep Alive');
+
+System.log("invoking '" + operation.name + "' operation...");
+var response = operation.invoke(request);
+System.log("operation '" + operation.name + "' successfully invoked.");
+
+System.log(response);
+
+System.log("out headers...");
+var outHeaders = System.getModule("com.vmware.library.soap").processOutHeaders(response);
+
+System.log("out parameters...");
+var outParameters = System.getModule("com.vmware.library.soap").processOutParameters(response);
+
+System.log("Done!");
+
+</script>
+        <in-binding>
+            <bind name="soapHost" type="SOAP:Host" export-name="snowVraVmSoapHost"/>
+        </in-binding>
+        <out-binding>
+            <bind name="sysId" type="string" export-name="sysId"/>
+        </out-binding>
+        <position y="55.40909090909091" x="344.5"/>
+    </workflow-item>
+    <workflow-item name="item2" throw-bind-name="errorCode" type="end" end-mode="1" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="109.04545454545453" x="384.5"/>
+    </workflow-item>
+    <presentation/>
+</ns2:workflow>

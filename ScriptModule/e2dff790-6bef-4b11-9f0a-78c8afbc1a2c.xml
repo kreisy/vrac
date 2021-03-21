@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getBuildProfileByName" result-type="vCAC:Entity" api-version="6.0.0" id="e2dff790-6bef-4b11-9f0a-78c8afbc1a2c" version="0.0.0" allowed-operations="evf" category-name="com.vmware.pso.vcac">
+  <param n="buildProfileName" t="string"/>
+  <param n="host" t="vCAC:VCACHost"/>
+  <script encoded="false"><![CDATA[var modelName = "ManagementModelEntities.svc";
+
+var properties = new Properties();
+properties.put("ProfileName",buildProfileName);
+
+var entities = vCACEntityManager.readModelEntitiesByCustomFilter(host.id, modelName, "GlobalProfiles", properties, null);
+if (entities != null && entities.length == 1) {
+	return entities[0];
+} else if (entities == null || entities.length == 0) {
+	throw("Could not find build profile by name: "+buildProfileName);
+} else {
+	throw ("Matched more than one buld profile");
+}]]></script>
+</dunes-script-module>

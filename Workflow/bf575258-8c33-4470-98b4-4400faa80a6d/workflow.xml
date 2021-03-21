@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="bf575258-8c33-4470-98b4-4400faa80a6d" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Kontingentbestellung]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="Storagetyp" type="string"/>
+    <param name="CPU" type="number"/>
+    <param name="Memory" type="number"/>
+    <param name="Storagekapazität" type="number"/>
+    <param name="Vorname" type="string"/>
+    <param name="Nachname" type="string"/>
+    <param name="Abteilung" type="string"/>
+    <param name="Kostenstelle" type="string"/>
+    <param name="offen" type="boolean"/>
+    <param name="sicher" type="boolean"/>
+    <param name="isoliert" type="boolean"/>
+  </input>
+  <attrib name="Storagearry" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#NFS#;#string#iSCSI#;#string#FC#}#]]></value>
+  </attrib>
+  <attrib name="false" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[netze = "";
+System.log("offen: " + offen);
+System.log("sicher: " + sicher);
+System.log("isoliert: " + isoliert);
+if (offen != false) {
+netze = netze + "offen";
+}
+if (sicher != false) {
+if (netze != "") {
+netze = netze + ", ";
+}
+netze = netze + "sicher";
+}
+if (isoliert != false) {
+if (netze != "") {
+netze = netze + ", ";
+}
+netze = netze + "isoliert"
+}
+CPU = CPU + " MHz";
+Memory= Memory + " GB";
+Storagekapazität = Storagekapazität + " GB";
+System.log(netze);
+var message = new EmailMessage();
+var htmlBody = '<html><body>';
+htmlBody += 'Informationen &uumlber die Kontingentbestellung:<br><br>';
+htmlBody += '<table border="1" cellpadding="5">';
+htmlBody += '<tr><td colspan="2">Vorname: ' + Vorname + '<br>Nachname: ' + Nachname + '<br>Abteilung: ' + Abteilung + '<br>Kostenstelle: ' + Kostenstelle + '</td></tr>';
+htmlBody += '<tr><td>CPU:</td><td>' + CPU + '</td></tr>';
+htmlBody += '<tr><td>Memory:</td><td>' + Memory + '</td></tr>';
+htmlBody += '<tr><td>Storagetyp:</td><td>' + Storagetyp + '</td></tr>';
+htmlBody += '<tr><td>Storagekapazit&aumlt:</td><td>' + Storagekapazität + '</td></tr>';
+htmlBody += '<tr><td>Netzwerk(e):</td><td>' + netze + '</td></tr>';
+htmlBody += '</table><br><br>';
+htmlBody += 'Diese Bestellung wurde &uuml;ber vRealize Automation durchgef&uumlhrt<br>';
+htmlBody += 'Sch&oumlnen Tag<br>';
+htmlBody += '<a href="mailto:vra@vpod.local">vRA Administrator</a>';
+htmlBody += '</body></html>';
+
+// Override default settings if and only if input parameter is set
+
+message.smtpHost = "controlctr.vpod.local";
+message.smtpPort = "25";
+message.username = "vra@vpod.local";
+message.password = "VMware1!";
+message.fromName = "vRA Administrator";
+message.fromAddress = "vra@vpod.local";
+message.toAddress = "cliebner@vpod.local";
+message.subject = "Informationen über die Kontigentbestellung von " + Vorname + " " + Nachname;
+message.addMimePart(htmlBody, "TEXT/HTML");
+message.sendMessage();]]></script>
+    <in-binding>
+      <bind name="Storagetyp" type="string" export-name="Storagetyp"/>
+      <bind name="CPU" type="number" export-name="CPU"/>
+      <bind name="Memory" type="number" export-name="Memory"/>
+      <bind name="Storagekapazität" type="number" export-name="Storagekapazität"/>
+      <bind name="Vorname" type="string" export-name="Vorname"/>
+      <bind name="Nachname" type="string" export-name="Nachname"/>
+      <bind name="Abteilung" type="string" export-name="Abteilung"/>
+      <bind name="Kostenstelle" type="string" export-name="Kostenstelle"/>
+      <bind name="offen" type="boolean" export-name="offen"/>
+      <bind name="isoliert" type="boolean" export-name="isoliert"/>
+      <bind name="false" type="boolean" export-name="false"/>
+      <bind name="sicher" type="boolean" export-name="sicher"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Persönliche Daten]]></title>
+      <p-param name="Vorname">
+        <desc><![CDATA[Vorname]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="Nachname">
+        <desc><![CDATA[Nachname]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="Abteilung">
+        <desc><![CDATA[Abteilung]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="Kostenstelle">
+        <desc><![CDATA[Kostenstelle]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[CPU/Memory]]></title>
+      <p-param name="CPU">
+        <desc><![CDATA[CPU in MHz (max. 50)]]></desc>
+        <p-qual kind="static" name="maxNumberValue" type="Number"><![CDATA[50.0]]></p-qual>
+      </p-param>
+      <p-param name="Memory">
+        <desc><![CDATA[Memory in GByte (max. 256)]]></desc>
+        <p-qual kind="static" name="maxNumberValue" type="Number"><![CDATA[256.0]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Storage]]></title>
+      <p-param name="Storagetyp">
+        <desc><![CDATA[Storagetyp]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#Storagearry]]></p-qual>
+        <p-qual kind="static" name="defaultValue" type="string"><![CDATA[NFS]]></p-qual>
+      </p-param>
+      <p-param name="Storagekapazität">
+        <desc><![CDATA[Storagekapazität in GByte (max. 1024)]]></desc>
+        <p-qual kind="static" name="maxNumberValue" type="Number"><![CDATA[1024.0]]></p-qual>
+        <p-qual kind="static" name="visible" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Netzwerk]]></title>
+      <p-param name="isoliert">
+        <desc><![CDATA[isoliert]]></desc>
+      </p-param>
+      <p-param name="sicher">
+        <desc><![CDATA[sicher]]></desc>
+      </p-param>
+      <p-param name="offen">
+        <desc><![CDATA[offen]]></desc>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

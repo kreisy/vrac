@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="get_user_locker" result-type="string" api-version="6.0.0" id="348cb055-51cb-4351-b29e-97bd280ad110" version="0.1.0" allowed-operations="evf" category-name="pscommand" memory-limit="512000000">
+  <runtime><![CDATA[python:3.7]]></runtime>
+  <entry-point><![CDATA[handler.handler]]></entry-point>
+  <param n="lcm_fqdn" t="string"/>
+  <param n="lcm_user" t="string"/>
+  <param n="lcm_pass" t="SecureString"/>
+  <param n="creds_name" t="string"/>
+  <script encoded="false"><![CDATA[import json
+
+def handler(context, inputs):
+    jsonOut=json.dumps(inputs, separators=(',', ':'))
+    print("Inputs were {0}".format(jsonOut))
+
+    outputs = {
+      "status": "done"
+    }
+
+    return outputs
+]]></script>
+</dunes-script-module>

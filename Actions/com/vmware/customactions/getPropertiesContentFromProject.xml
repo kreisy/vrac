@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getPropertiesContentFromProject" result-type="Array/string" api-version="6.0.0" id="afc22c9a-e977-48ad-be74-3d20c08a9a8e" version="0.0.0" allowed-operations="evf" category-name="com.vmware.customactions">
+  <param n="projectId" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[// Returns a collection of REST:RESTHost object types from the inventory service plugin
+var getHosts = RESTHostManager.getHosts()
+
+// Iterates the collection to return the REST:RESTHost object type and perform a match on the name attribute provided as an input parameter and returns the REST:RESTHost type if true.
+for(var restHostId in getHosts){	
+	var restHost = RESTHostManager.getHost(getHosts[restHostId])
+	if(restHost.name == "vRA01"){	
+		myresthost = restHost;
+	} 
+} 
+var networktaglist = [];
+//Get refreshtoken
+var request = myresthost.createRequest("POST", "/csp/gateway/am/api/login?access_token",'{"username": "vmware", "password": "VMware1!"}');
+request.setHeader("Content-Type","application/json");
+request.setHeader("Accept","application/json");
+var response = request.execute();
+var responseJSON = JSON.parse(response.contentAsString);
+var refreshtokenstring = "{\"refreshToken\"\: \"" + responseJSON.refresh_token + "\"}";
+System.log (refreshtokenstring);
+//Authenticate
+//var request = myresthost.createRequest("POST","/iaas/login",'{"refreshToken": "VCzq7TE4VhRIvIbGHX3JE9BjGCu5dQYJGsN37RZnWFpdlidFbZtbgdS9vCTWPtOO"}');
+var request = myresthost.createRequest("POST","/iaas/login", refreshtokenstring);
+request.setHeader("Content-Type","application/json");
+request.setHeader("Accept","application/json");
+var response = request.execute();
+var responseJSON = JSON.parse(response.contentAsString);
+var token = responseJSON.token;
+System.log("Aquired vRA Token: " + token);
+
+//Get Custom Property allowednetworks content
+System.log ("Project-ID: #" + projectId + "#");
+if (projectId == null) {
+	System.log ("Project-ID is not set");
+	}
+	else {
+	var request = myresthost.createRequest("GET","/project-service/api/projects/" + projectId);
+	request.setHeader("Content-Type","application/json");
+	request.setHeader("Accept","application/json");
+	request.setHeader("Authorization", "Bearer " + token);
+	var projectdetails = request.execute();
+	System.log (projectdetails.contentAsString);
+	if (projectdetails.contentAsString.indexOf("allowednetworks") == -1) {
+		networktaglist = [];
+		}
+		else {
+		var projectdetailsJSON = JSON.parse(projectdetails.contentAsString);
+		networktaglist = projectdetailsJSON.properties.allowednetworks.split(",");
+		}
+	}
+return networktaglist;]]></script>
+</dunes-script-module>

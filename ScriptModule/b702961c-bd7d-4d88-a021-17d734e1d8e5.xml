@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwRuleIdByName" result-type="string" api-version="6.0.0" id="b702961c-bd7d-4d88-a021-17d734e1d8e5" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="sectionId" t="string"/>
+  <param n="ruleName" t="string"/>
+  <param n="restHost" t="REST:RESTHost"/>
+  <script encoded="false"><![CDATA[var ruleRequest = restHost.createRequest("GET", "api/4.0/firewall/globalroot-0/config/layer3sections/"+sectionId);
+ruleRequest.contentType = "application/xml";
+System.log("Request URL: " + ruleRequest.fullUrl);
+var response = ruleRequest.execute();
+if(response.statusCode != 200) throw("Could not GET firewall Rules ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var ruleXml = new XML(response.contentAsString);
+for each (var rule in ruleXml.rule)
+{
+	if (rule.name == ruleName)
+	{
+		System.log("Found rule: "+ruleName+ " with id: "+ rule.@id.toString());
+		return rule.@id.toString();
+	}
+}
+System.log("Unable to find rule: "+ruleName);
+return null;]]></script>
+</dunes-script-module>

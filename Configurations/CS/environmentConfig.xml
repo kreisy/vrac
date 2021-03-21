@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="572c85c9-4cd3-4689-bed4-8d7df275c3be" version="0.0.0">
+  <display-name><![CDATA[environmentConfig]]></display-name>
+  <atts>
+    <att name="CASToken" type="SecureString" read-only="false">
+      <value encoded="n"><![CDATA[__NULL__]]></value>
+    </att>
+    <att name="CASRestHost" type="REST:RESTHost" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='8ba29fad-6579-4ec5-bde8-d1d2c844b92e'&dunesName='REST:RESTHost']]></value>
+      <description><![CDATA[//Rest Host Updated dynamically ]]></description>
+    </att>
+    <att name="serviceNowRestHost" type="REST:RESTHost" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='d87f97c1-edfa-4d61-b23b-e1721c6e131b'&dunesName='REST:RESTHost']]></value>
+      <description><![CDATA[//Rest Host Updated dynamically ]]></description>
+    </att>
+  </atts>
+</config-element>

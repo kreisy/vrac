@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="163df46b-e4ed-412a-892e-27de65a77aa8" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Delete Security Tag]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="restHost" type="REST:RESTHost"/>
+    <param name="tagName" type="string"/>
+    <param name="detach" type="boolean"/>
+  </input>
+  <attrib name="tagId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vmMorefArray" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="custom-condition" alt-out-name="item6">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if (vmMorefArray.length=="0")
+{
+	return true;
+}
+else
+{
+	if (detach)
+	{
+		return false;
+	}
+	else
+	{
+		throw "Done nothing. VMs assigned to Tag. In order to delete tag, please set \"Detach\" to \"true\"";
+	}
+}]]></script>
+    <in-binding>
+      <bind name="detach" type="boolean" export-name="detach"/>
+      <bind name="vmMorefArray" type="Array/string" export-name="vmMorefArray"/>
+    </in-binding>
+    <position y="45.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item2" type="task">
+    <display-name><![CDATA[Detach VM from Security Tag]]></display-name>
+    <script encoded="false"><![CDATA[for each (var vmMoref in vmMorefArray)
+{
+	var request = restHost.createRequest("DELETE", "api/2.0/services/securitytags/tag/"+tagId+"/vm/"+vmMoref);
+	request.contentType = "application/xml";
+	System.log("Request URL: " + request.fullUrl);
+	var response = request.execute();
+
+	if(response.statusCode != 200) throw("Could not detach vm from tag ! : " + response.statusCode + "\n" + response.contentAsString);
+
+	System.log("Successfuly Detach VM: " + vmMoref + " from Security Tag");
+}]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagId" type="string" export-name="tagId"/>
+      <bind name="tagName" type="string" export-name="tagName"/>
+      <bind name="vmMorefArray" type="Array/string" export-name="vmMorefArray"/>
+    </in-binding>
+    <out-binding/>
+    <position y="119.04545454545453" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="task" script-module="com.vmware.se.nsx.securityTag/getAllVmMorefAttachToSecurityTag">
+    <display-name><![CDATA[getAllVmMorefAttachToSecurityTag]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityTag").getAllVmMorefAttachToSecurityTag(restHost,tagId) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagId" type="string" export-name="tagId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="vmMorefArray"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task" script-module="com.vmware.se.nsx.securityTag/getSecurityTagIdByName">
+    <display-name><![CDATA[getSecurityTagIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityTag").getSecurityTagIdByName(restHost,tagName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagName" type="string" export-name="tagName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="tagId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task" script-module="com.vmware.se.nsx.securityTag/deleteSecurityTagById">
+    <display-name><![CDATA[deleteSecurityTagById]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.se.nsx.securityTag").deleteSecurityTagById(restHost,tagId) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="tagId" type="string" export-name="tagId"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="tagName">
+      <desc><![CDATA[ruleName]]></desc>
+    </p-param>
+    <p-param name="detach">
+      <desc><![CDATA[detach]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

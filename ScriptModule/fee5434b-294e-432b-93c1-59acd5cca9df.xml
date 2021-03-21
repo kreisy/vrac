@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSecurityPoliciesIdsByName" result-type="Array/string" api-version="6.0.0" id="fee5434b-294e-432b-93c1-59acd5cca9df" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityPolicies">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="securityPoliciesNames" t="Array/string"/>
+  <script encoded="false"><![CDATA[var securityPoliciesIds = new Array();
+var request = restHost.createRequest("GET", "/api/2.0/services/policy/securitypolicy/all");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not get security groups list ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var securityPoliciesXml = new XML(response.contentAsString);
+
+for each (securityPolicyName in securityPoliciesNames)
+{
+	for each (var securityPolicy in securityPoliciesXml.securityPolicy)
+	{
+		if (securityPolicyName == securityPolicy.name.toString())
+		{	
+			System.log("Found Security Policy "+securityPolicyName+ ", ID is: "+ securityPolicy.objectId.toString());
+			securityPoliciesIds.push(securityPolicy.objectId.toString());
+		}
+	}
+}
+if (securityPoliciesIds.length > 0)
+{
+	return securityPoliciesIds;
+}
+else
+{
+	throw("Unable to find secuirty policies");
+}
+]]></script>
+</dunes-script-module>

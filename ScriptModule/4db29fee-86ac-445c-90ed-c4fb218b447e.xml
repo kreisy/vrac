@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="deleteSecurityTagById" result-type="void" api-version="6.0.0" id="4db29fee-86ac-445c-90ed-c4fb218b447e" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.securityTag">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="tagId" t="string"/>
+  <script encoded="false"><![CDATA[var request = restHost.createRequest("DELETE", "api/2.0/services/securitytags/tag/"+tagId);
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not delete security tag ! : " + response.statusCode + "\n" + response.contentAsString);
+
+System.log("Successfuly Delete Security Tag");
+
+
+]]></script>
+</dunes-script-module>

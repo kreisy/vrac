@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="4e123d91-a344-4381-ae56-c7820b33f089" version="0.0.5" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create NSX Firewall Service]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="serviceName" type="string"/>
+    <param name="serviceProtocol" type="string"/>
+    <param name="servicePort" type="string"/>
+    <param name="desc" type="string"/>
+    <param name="restHost" type="REST:RESTHost"/>
+  </input>
+  <output>
+    <param name="serviceId" type="string"/>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Create FW Application Service]]></display-name>
+    <script encoded="false"><![CDATA[//var serviceXml = new XML('<application><objectId/><type><typeName/></type><description/><name/><revision/><objectTypeName/><element><applicationProtocol/><value/></element></application>');
+var serviceXml = new XML('<application></application>');
+serviceXml.name=serviceName;
+serviceXml.description=desc;
+serviceXml.element.applicationProtocol=serviceProtocol;
+serviceXml.element.value=servicePort;
+serviceXml.revision="0";
+
+var request = restHost.createRequest("POST", "/api/2.0/services/application/globalroot-0", serviceXml.toString());
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+System.log(serviceXml);
+var response = request.execute();
+
+if(response.statusCode != 201) throw("Could not create FW Application Service ! : " + response.statusCode + "\n" + response.contentAsString);
+
+responseXml = new XML(response.contentAsString);
+serviceId=responseXml.toString();
+
+
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="serviceName" type="string" export-name="serviceName"/>
+      <bind name="serviceProtocol" type="string" export-name="serviceProtocol"/>
+      <bind name="servicePort" type="string" export-name="servicePort"/>
+      <bind name="desc" type="string" export-name="desc"/>
+    </in-binding>
+    <out-binding>
+      <bind name="serviceId" type="string" export-name="serviceId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="serviceName">
+      <desc><![CDATA[serviceName]]></desc>
+    </p-param>
+    <p-param name="desc">
+      <desc><![CDATA[desc]]></desc>
+    </p-param>
+    <p-param name="serviceProtocol">
+      <desc><![CDATA[serviceProtocol]]></desc>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#UDP#;#string#TCP#}#]]></p-qual>
+    </p-param>
+    <p-param name="servicePort">
+      <desc><![CDATA[servicePort]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

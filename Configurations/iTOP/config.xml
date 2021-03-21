@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="23bd80b6-4409-43a5-ba8f-cec6099d6030" version="1.0.0">
+  <display-name><![CDATA[config]]></display-name>
+  <description><![CDATA[Holds REST connectivity details for iTop endpoint.]]></description>
+  <atts>
+    <att name="restOperation" type="REST:RESTOperation" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='850f2b88-08e6-4ef1-aa26-54314951661b:ff6ae59a-a96b-457e-a7f6-2b1c55b03f18'&dunesName='REST:RESTOperation']]></value>
+    </att>
+    <att name="auth_user" type="string" read-only="false">
+      <value encoded="n"><![CDATA[admin]]></value>
+    </att>
+    <att name="auth_pwd" type="SecureString" read-only="false">
+      <value encoded="n"><![CDATA[vcoencrypted:{riv}YkbT3sJyFcWYg447vsTqZHpzSrHVEKg+iUcwkqows4U=]]></value>
+    </att>
+    <att name="restHost" type="REST:RESTHost" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='850f2b88-08e6-4ef1-aa26-54314951661b'&dunesName='REST:RESTHost']]></value>
+    </att>
+  </atts>
+</config-element>

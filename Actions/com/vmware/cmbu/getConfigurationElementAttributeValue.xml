@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getConfigurationElementAttributeValue" result-type="Any" api-version="6.0.0" id="b9ab5d6e-6fb6-4604-b7c8-ff31c8f6d1c9" version="0.0.1" allowed-operations="evf" category-name="com.vmware.cmbu">
+  <param n="configElement" t="ConfigurationElement"/>
+  <param n="variableName" t="string"/>
+  <script encoded="false"><![CDATA[try {
+    System.log("Get variable " + variableName);
+	var value = configElement.getAttributeWithKey(variableName).value;
+}
+catch (e){
+    System.warn(e.message);
+    return null;
+}
+
+return value;
+]]></script>
+</dunes-script-module>

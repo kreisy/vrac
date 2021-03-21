@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item5" object-name="workflow:name=generic" id="5aa06616-8d9c-4b62-ba12-e23ff4626bac" version="0.0.16" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Assign a firewall rule to a security policy]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="restHost" type="REST:RESTHost">
+      <description><![CDATA[NSX REST HOST]]></description>
+    </param>
+    <param name="securityPolicyName" type="string"/>
+    <param name="firewallSecurityActionName" type="string"/>
+    <param name="firewallSecurityActionDescription" type="string"/>
+    <param name="firewallSecurityActionDirection" type="string">
+      <description><![CDATA[inbound / outbound]]></description>
+    </param>
+    <param name="applicationNames" type="Array/string"/>
+    <param name="firewallSecurityActionIsEnabled" type="boolean"/>
+    <param name="firewallSecurityActionAction" type="string">
+      <description><![CDATA[block / allow]]></description>
+    </param>
+    <param name="firewallSecurityActionLogged" type="boolean"/>
+    <param name="secondarySecurityGroup" type="string"/>
+    <param name="applicationGroupNames" type="Array/string"/>
+  </input>
+  <attrib name="applicationIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="secondarySecurityGroupId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="applicationGroupIds" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="securityPolicyId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="944.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Update security policy]]></display-name>
+    <script encoded="false"><![CDATA[// First get the security policy
+var request = restHost.createRequest("GET", "/api/2.0/services/policy/securitypolicy/" + securityPolicyId);
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+
+if(response.statusCode != 200) throw("Could not GET security policy ! : " + response.statusCode + "\n" + response.contentAsString);
+
+// Edit the XML
+var securityPolicyXml = new XML(response.contentAsString);
+System.log("Got security policy with ID " + securityPolicyId);
+addFirewallSecurityAction(securityPolicyXml);
+System.log("Updated XML : " + securityPolicyXml.toString());
+
+// Update the policy
+
+request = restHost.createRequest("PUT", "/api/2.0/services/policy/securitypolicy/" + securityPolicyId, securityPolicyXml.toString());
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+if(response.statusCode != 200) throw("firewallSecurityAction  not ADDED to " + securityPolicyId + ". Response Code : " + response.statusCode + "\n" + response.contentAsString);
+
+System.log("firewallSecurityAction successfully added to security policy with ID " + securityPolicyId);
+
+
+function addFirewallSecurityAction(securityPolicyXml) {
+	var firewallSecurityAction = new XML('<action class="firewallSecurityAction"><category>firewall</category><extendedAttributes/><applications/></action>');
+	firewallSecurityAction.name = firewallSecurityActionName;
+	firewallSecurityAction.description = firewallSecurityActionDescription;
+	firewallSecurityAction.direction = firewallSecurityActionDirection;
+	firewallSecurityAction.isEnabled = firewallSecurityActionIsEnabled;
+	firewallSecurityAction.action = firewallSecurityActionAction; // allow / block
+	firewallSecurityAction.logged = firewallSecurityActionLogged;
+	if ((secondarySecurityGroupId!="")&&(secondarySecurityGroupId!=null))
+	{
+		firewallSecurityAction.secondarySecurityGroup.objectId=secondarySecurityGroupId;
+	}
+	
+	// Adding security policy to firewallSecurityAction
+	var securityPolicy = new XML("<securityPolicy><objectId/><type><typeName>Policy</typeName></type><extendedAttributes/></securityPolicy>");
+	securityPolicy.objectId = securityPolicyId;
+		
+	for each (var applicationId in applicationIds) {	
+		var application = new XML('<application><objectId/></application>');
+		application.objectId = applicationId;
+		firewallSecurityAction.applications.appendChild(application);
+	}
+	
+	for each (var applicationGroupId in applicationGroupIds) {	
+		var applicationGroup = new XML('<applicationGroup><objectId/></applicationGroup>');
+		applicationGroup.objectId = applicationGroupId;
+		firewallSecurityAction.applications.appendChild(applicationGroup);
+	}	
+	
+	
+	if (securityPolicyXml.actionsByCategory.(category == "firewall").length() == 0) {
+		securityPolicyXml.appendChild("<actionsByCategory><category>firewall</category></actionsByCategory>");
+		//securityPolicyXml.actionsByCategory.action = firewallSecurityAction;
+	}
+
+	securityPolicyXml.actionsByCategory.(category == "firewall").appendChild(firewallSecurityAction); //.toString();
+}
+
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityPolicyId" type="string" export-name="securityPolicyId"/>
+      <bind name="firewallSecurityActionName" type="string" export-name="firewallSecurityActionName"/>
+      <bind name="firewallSecurityActionDirection" type="string" export-name="firewallSecurityActionDirection"/>
+      <bind name="applicationIds" type="Array/string" export-name="applicationIds"/>
+      <bind name="isEnabled" type="boolean" export-name="firewallSecurityActionIsEnabled"/>
+      <bind name="firewallSecurityActionIsEnabled" type="boolean" export-name="firewallSecurityActionIsEnabled"/>
+      <bind name="firewallSecurityActionAction" type="string" export-name="firewallSecurityActionAction"/>
+      <bind name="firewallSecurityActionLogged" type="boolean" export-name="firewallSecurityActionLogged"/>
+      <bind name="firewallSecurityActionDescription" type="string" export-name="firewallSecurityActionDescription"/>
+      <bind name="secondarySecurityGroupId" type="string" export-name="secondarySecurityGroupId"/>
+      <bind name="applicationGroupIds" type="Array/string" export-name="applicationGroupIds"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task" script-module="com.vmware.se.nsx.securityGroups/getSecurityGroupIdByName">
+    <display-name><![CDATA[getSecurityGroupIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityGroups").getSecurityGroupIdByName(restHost,securityGroupName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityGroupName" type="string" export-name="secondarySecurityGroup"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="secondarySecurityGroupId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item4" type="task" script-module="com.vmware.se.nsx.fw/getFwApplicationIdsByName">
+    <display-name><![CDATA[getFwApplicationIdsByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwApplicationIdsByName(applicationNames,restHost) ;]]></script>
+    <in-binding>
+      <bind name="applicationNames" type="Array/string" export-name="applicationNames"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="applicationIds"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item3" type="task" script-module="com.vmware.se.nsx.fw/getFwApplicationGroupsIdsByName">
+    <display-name><![CDATA[getFwApplicationGroupsIdsByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwApplicationGroupsIdsByName(applicationNames,restHost) ;]]></script>
+    <in-binding>
+      <bind name="applicationNames" type="Array/string" export-name="applicationGroupNames"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="applicationGroupIds"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item2" type="task" script-module="com.vmware.se.nsx.securityPolicies/getSecurityPolicyIdByName">
+    <display-name><![CDATA[getSecurityPolicyIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityPolicies").getSecurityPolicyIdByName(restHost,securityPolicyName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityPolicyName" type="string" export-name="securityPolicyName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="securityPolicyId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[NSX REST HOST]]></desc>
+    </p-param>
+    <p-param name="securityPolicyName">
+      <desc><![CDATA[securityPolicyName]]></desc>
+    </p-param>
+    <p-param name="firewallSecurityActionName">
+      <desc><![CDATA[firewallSecurityActionName]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+    </p-param>
+    <p-param name="firewallSecurityActionDescription">
+      <desc><![CDATA[firewallSecurityActionDescription]]></desc>
+    </p-param>
+    <p-param name="firewallSecurityActionDirection">
+      <desc><![CDATA[firewallSecurityActionDirection]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#inbound#;#string#outbound#}#]]></p-qual>
+    </p-param>
+    <p-param name="applicationNames">
+      <desc><![CDATA[applicationNames]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsList").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="applicationGroupNames">
+      <desc><![CDATA[applicationGroupNames]]></desc>
+    </p-param>
+    <p-param name="firewallSecurityActionIsEnabled">
+      <desc><![CDATA[firewallSecurityActionIsEnabled]]></desc>
+    </p-param>
+    <p-param name="firewallSecurityActionAction">
+      <desc><![CDATA[block / allow]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#allow#;#string#block#}#]]></p-qual>
+    </p-param>
+    <p-param name="firewallSecurityActionLogged">
+      <desc><![CDATA[firewallSecurityActionLogged]]></desc>
+    </p-param>
+    <p-param name="secondarySecurityGroup">
+      <desc><![CDATA[secondarySecurityGroup]]></desc>
+      <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.securityGroups","getAllSecurityGroups").call( #restHost )]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

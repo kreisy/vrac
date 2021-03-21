@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="get_disks" result-type="Array/string" api-version="6.0.0" id="cc9cf36e-0888-446c-91f2-3c00a81a7d91" version="0.0.0" category-name="com.vmware.customactions">
+  <param n="vm" t="VC:VirtualMachine"/>
+  <script encoded="false"><![CDATA[//Show all Disks
+var devices = vm.config.hardware.device;
+var disks = new Array();
+
+for (i in devices){
+    if (devices[i].DeviceInfo.Label.indexOf('Hard disk') >= 0){
+        var capacityGB = devices[i].capacityInKB / 1024 / 1024;
+        disks.push(devices[i].deviceInfo.label + "-" + capacityGB + " GB");
+        System.log(disks);  
+    } 
+}
+return disks;]]></script>
+</dunes-script-module>

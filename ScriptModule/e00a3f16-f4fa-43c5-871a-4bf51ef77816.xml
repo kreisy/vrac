@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFwApplicationIdsByName" result-type="Array/string" api-version="6.0.0" id="e00a3f16-f4fa-43c5-871a-4bf51ef77816" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="applicationNames" t="Array/string"/>
+  <param n="restHost" t="REST:RESTHost"/>
+  <script encoded="false"><![CDATA[var applicationIds = new Array();
+var request = restHost.createRequest("GET", "api/2.0/services/application/scope/globalroot-0");
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+if(response.statusCode != 200) throw("Could not GET Services List ! : " + response.statusCode + "\n" + response.contentAsString);
+
+var firewallConfigurationXml = new XML(response.contentAsString);
+var services = firewallConfigurationXml.application;
+for each (var applicationName in applicationNames)
+{
+	var found = false;
+	for each (var service in services)
+	{
+		if(applicationName==service.name.toString())
+		{
+			found=true;
+			System.log("Found Service "+applicationName+" with the ID: "+service.objectId.toString());
+			applicationIds.push(service.objectId.toString());
+		}	
+	}
+	if(!found) {
+		System.log("Found Service "+applicationName+" with the ID: "+service.objectId.toString()); }
+}
+return applicationIds;]]></script>
+</dunes-script-module>

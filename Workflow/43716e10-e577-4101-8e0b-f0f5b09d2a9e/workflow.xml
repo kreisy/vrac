@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="43716e10-e577-4101-8e0b-f0f5b09d2a9e" version="0.0.6" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Open User Virtual Machines Port]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="restHost" type="REST:RESTHost"/>
+    <param name="ruleName" type="string"/>
+    <param name="vCACCafeHost" type="vCACCAFE:VCACHost"/>
+    <param name="servicesNames" type="Array/string"/>
+    <param name="serviceGroupsNames" type="Array/string"/>
+  </input>
+  <attrib name="sectionName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="sectionId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="ruleId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="userName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Rule Name Already Exists]]></value>
+  </attrib>
+  <attrib name="userSecurityGroup" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="userSecurityGroupId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="disabled" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <attrib name="logged" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <attrib name="ruleAction" type="string" read-only="false">
+    <value encoded="n"><![CDATA[allow]]></value>
+  </attrib>
+  <attrib name="userSecurityGroupArray" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item3" out-name="item6" type="task">
+    <display-name><![CDATA[Initialize Attributes]]></display-name>
+    <script encoded="false"><![CDATA[userName=System.getContext().getParameter("__asd_requestedBy");
+sectionName = "Self Serivce FW Rules - "+userName;
+userSecurityGroup = userName+"-SG";
+userSecurityGroupArray = new Array();
+userSecurityGroupArray.push(userSecurityGroup);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="userName" type="string" export-name="userName"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+      <bind name="userSecurityGroup" type="string" export-name="userSecurityGroup"/>
+      <bind name="userSecurityGroupArray" type="Array/string" export-name="userSecurityGroupArray"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item12" type="task" script-module="com.vmware.se.nsx.fw/getFwSectionIdByName">
+    <display-name><![CDATA[getFwSectionIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwSectionIdByName(restHost,sectionName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="sectionId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item8" type="task" script-module="com.vmware.se.nsx.fw/getFwRuleIdByName">
+    <display-name><![CDATA[getFwRuleIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").getFwRuleIdByName(sectionId,ruleName,restHost) ;]]></script>
+    <in-binding>
+      <bind name="sectionId" type="string" export-name="sectionId"/>
+      <bind name="ruleName" type="string" export-name="ruleName"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="ruleId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item19" type="custom-condition" alt-out-name="item9">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if ((ruleId == "")||(ruleId==null)){
+	return true;
+}
+else {
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="ruleId" type="string" export-name="ruleId"/>
+    </in-binding>
+    <position y="45.40909090909091" x="924.5"/>
+  </workflow-item>
+  <workflow-item name="item9" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="45.40909090909091" x="1124.5"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item18" type="custom-condition" alt-out-name="item17">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if ((sectionId == "")||(sectionId==null)){
+	return false;
+}
+else {
+	return true;
+}]]></script>
+    <in-binding>
+      <bind name="sectionId" type="string" export-name="sectionId"/>
+    </in-binding>
+    <position y="45.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task" script-module="com.vmware.se.nsx.fw/newFwSection">
+    <display-name><![CDATA[newFwSection]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.fw").newFwSection(restHost,sectionName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="sectionId"/>
+    </out-binding>
+    <position y="182.68181818181816" x="485.0"/>
+  </workflow-item>
+  <workflow-item name="item17" prototype-id="system-log" out-name="item1" type="task" interaction="l">
+    <display-name><![CDATA[System log]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.log("###### No Section Found, Creating New One ######");
+]]></script>
+    <in-binding/>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'log']]></description>
+    <position y="119.04545454545453" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item18" prototype-id="system-log" out-name="item7" type="task" interaction="l">
+    <display-name><![CDATA[System log]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.log("###### Found Section Name "+sectionName+" with ID "+sectionId+" ######");
+]]></script>
+    <in-binding>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+      <bind name="sectionId" type="string" export-name="sectionId"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'log']]></description>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item19" prototype-id="system-log" out-name="item0" type="task" interaction="l">
+    <display-name><![CDATA[System log]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.log("###### Rule with the name "+ruleName+" is not exists "+ "######");
+]]></script>
+    <in-binding>
+      <bind name="ruleName" type="string" export-name="ruleName"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console log with level 'log']]></description>
+    <position y="119.04545454545453" x="924.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item4" type="task" script-module="com.vmware.se.nsx.securityGroups/getSecurityGroupIdByName">
+    <display-name><![CDATA[getSecurityGroupIdByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.se.nsx.securityGroups").getSecurityGroupIdByName(restHost,securityGroupName) ;]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="securityGroupName" type="string" export-name="userSecurityGroup"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="userSecurityGroupId"/>
+    </out-binding>
+    <position y="182.68181818181816" x="684.5"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="299.95454545454544" x="965.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item11" type="custom-condition" alt-out-name="item10">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[if ((userSecurityGroupId=="")||(userSecurityGroupId==null)) {
+	return false;
+}
+else { 
+	return true;
+}]]></script>
+    <in-binding>
+      <bind name="userSecurityGroupId" type="string" export-name="userSecurityGroupId"/>
+    </in-binding>
+    <position y="172.68181818181816" x="925.0"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item11" type="link" linked-workflow-id="06bb86a6-2888-4810-a792-395cc052e4ba">
+    <display-name><![CDATA[Create User Security Group and Tag VMs]]></display-name>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+      <bind name="vCACCafeHost" type="vCACCAFE:VCACHost" export-name="vCACCafeHost"/>
+    </in-binding>
+    <out-binding/>
+    <position y="182.68181818181816" x="1064.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item2" type="link" linked-workflow-id="57c06312-a9b0-4f70-9f14-3befee6700a4">
+    <display-name><![CDATA[Add NSX Firewall Rule (Security Groups)]]></display-name>
+    <in-binding>
+      <bind name="disabled" type="boolean" export-name="disabled"/>
+      <bind name="logged" type="boolean" export-name="logged"/>
+      <bind name="ruleName" type="string" export-name="ruleName"/>
+      <bind name="ruleAction" type="string" export-name="ruleAction"/>
+      <bind name="sourceSecurityGroups" type="Array/string" export-name="userSecurityGroupArray"/>
+      <bind name="destinationSecurityGroups" type="Array/string" export-name="userSecurityGroupArray"/>
+      <bind name="servicesNames" type="Array/string" export-name="servicesNames"/>
+      <bind name="sectionName" type="string" export-name="sectionName"/>
+      <bind name="serviceGroupsNames" type="Array/string" export-name="serviceGroupsNames"/>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="ruleId" type="string" export-name="ruleId"/>
+    </out-binding>
+    <position y="246.3181818181818" x="925.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="restHost">
+      <desc><![CDATA[restHost]]></desc>
+    </p-param>
+    <p-param name="vCACCafeHost">
+      <desc><![CDATA[vCACCafeHost]]></desc>
+    </p-param>
+    <p-param name="ruleName">
+      <desc><![CDATA[ruleName]]></desc>
+    </p-param>
+    <p-param name="servicesNames">
+      <desc><![CDATA[servicesNames]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsList").call( #restHost )]]></p-qual>
+    </p-param>
+    <p-param name="serviceGroupsNames">
+      <desc><![CDATA[serviceGroupsNames]]></desc>
+      <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.se.nsx.fw","getFwApplicationsGroupsList").call( #restHost )]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

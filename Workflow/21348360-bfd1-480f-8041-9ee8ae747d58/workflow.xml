@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="21348360-bfd1-480f-8041-9ee8ae747d58" version="1.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[T-Shirt Size]]></display-name>
+  <description><![CDATA[Sends a request for a catalog item.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="OS" type="string"/>
+    <param name="Size" type="string"/>
+    <param name="Department" type="string"/>
+    <param name="VMs" type="number"/>
+  </input>
+  <attrib name="item" type="vCACCAFE:CatalogItem" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='697452b2-f50d-4dab-909e-fc6ae915a76a/07adb866-9539-43e6-a770-7ca12ffe79a5/1099904a-1b17-42a1-8e5d-cbaace5db864'&dunesName='vCACCAFE:CatalogItem']]></value>
+    <description><![CDATA[Catalog item]]></description>
+  </attrib>
+  <attrib name="leaseDurationDays" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="cpuCount" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="memorySize" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="assignToUser" type="string" read-only="false">
+    <value encoded="n"><![CDATA[cliebner@vsphere.local]]></value>
+  </attrib>
+  <attrib name="requestReason" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Demo]]></value>
+  </attrib>
+  <attrib name="requestDescription" type="string" read-only="false">
+    <value encoded="n"><![CDATA[T-Shirt Size VM]]></value>
+  </attrib>
+  <attrib name="OSList" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#Windows 2008 R2#;#string#CentOS 6.3#;#string#Ubuntu#}#]]></value>
+  </attrib>
+  <attrib name="SizeList" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#Small#;#string#Medium#;#string#Large#}#]]></value>
+  </attrib>
+  <attrib name="DepartmentList" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[#{#string#Sales#;#string#Marketing#;#string#Development#}#]]></value>
+  </attrib>
+  <attrib name="CentOS" type="vCACCAFE:CatalogItem" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='697452b2-f50d-4dab-909e-fc6ae915a76a/07adb866-9539-43e6-a770-7ca12ffe79a5/1099904a-1b17-42a1-8e5d-cbaace5db864'&dunesName='vCACCAFE:CatalogItem']]></value>
+  </attrib>
+  <attrib name="Ubuntu" type="vCACCAFE:CatalogItem" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='697452b2-f50d-4dab-909e-fc6ae915a76a/58742d81-b8bf-40b2-835c-7e1e017a6d64/1099904a-1b17-42a1-8e5d-cbaace5db864'&dunesName='vCACCAFE:CatalogItem']]></value>
+  </attrib>
+  <attrib name="Windows2008" type="vCACCAFE:CatalogItem" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='697452b2-f50d-4dab-909e-fc6ae915a76a/eee8d9f9-d197-4536-901e-72e886758326/1099904a-1b17-42a1-8e5d-cbaace5db864'&dunesName='vCACCAFE:CatalogItem']]></value>
+  </attrib>
+  <attrib name="component" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="704.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[if (OS == "Windows 2008 R2") {
+	item=Windows2008;
+	System.log("OS="+OS);
+		if (Size == "Small") {
+		cpuCount=1;
+		memorySize=512;
+		}else if (Size == "Medium") {
+		cpuCount=2;
+		memorySize=1024;
+		}else if (Size == "Large") {
+		cpuCount=3;
+		memorySize=2048;
+		}
+	}else if (OS == "Ubuntu") {
+	item=Ubuntu;
+	System.log("OS="+OS);
+		if (Size == "Small") {
+		cpuCount=1;
+		memorySize=256;
+		}else if (Size == "Medium") {
+		cpuCount=2;
+		memorySize=384;
+		}else if (Size == "Large") {
+		cpuCount=3;
+		memorySize=512;
+		}	
+	}else if (OS == "CentOS 6.3") {
+	item=CentOS;
+	System.log("OS="+OS);
+		if (Size == "Small") {
+		cpuCount=1;
+		memorySize=256;
+		}else if (Size == "Medium") {
+		cpuCount=2;
+		memorySize=384;
+		}else if (Size == "Large") {
+		cpuCount=3;
+		memorySize=512;
+		}
+	}else System.log("OS nicht vorhanden");
+	
+if (Department == "Sales") {
+	leaseDurationDays=10;
+	}else if (Department == "Marketing") {
+	leaseDurationDays=20;
+	}else if (Department == "Development") {
+	leaseDurationDays=30;
+	}
+
+System.log("Anzahl:" + VMs); 
+]]></script>
+    <in-binding>
+      <bind name="OS" type="string" export-name="OS"/>
+      <bind name="Size" type="string" export-name="Size"/>
+      <bind name="Department" type="string" export-name="Department"/>
+      <bind name="CentOS" type="vCACCAFE:CatalogItem" export-name="CentOS"/>
+      <bind name="Windows2008" type="vCACCAFE:CatalogItem" export-name="Windows2008"/>
+      <bind name="Ubuntu" type="vCACCAFE:CatalogItem" export-name="Ubuntu"/>
+      <bind name="VMs" type="number" export-name="VMs"/>
+    </in-binding>
+    <out-binding>
+      <bind name="leaseDurationDays" type="number" export-name="leaseDurationDays"/>
+      <bind name="cpuCount" type="number" export-name="cpuCount"/>
+      <bind name="memorySize" type="number" export-name="memorySize"/>
+      <bind name="item" type="vCACCAFE:CatalogItem" export-name="item"/>
+      <bind name="component" type="string" export-name="component"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var provisioningRequest = vCACCAFERequestsHelper.getProvisioningRequestForCatalogItem(item);
+provisioningRequest.setDescription(requestDescription);
+provisioningRequest.setReasons(requestReason);
+if(assignToUser){
+	provisioningRequest.setRequestedFor(assignToUser);
+}
+////Uncomment to customize request data
+var jsonData = vCACCAFERequestsHelper.getProvisioningRequestData(provisioningRequest);
+json = JSON.parse(jsonData);
+if (OS == "Windows 2008 R2") {
+	json.vSphere_Windows2008_01.data.cpu = cpuCount;
+	json.vSphere_Windows2008_01.data.memory = memorySize;
+	}else if (OS == "Ubuntu") {
+	json.vSphere_Ubuntu.data.cpu = cpuCount;
+	json.vSphere_Ubuntu.data.memory = memorySize;
+	}else if (OS == "CentOS 6.3") {
+	json.vSphere_CentOS01.data.cpu = cpuCount;
+	json.vSphere_CentOS01.data.memory = memorySize;
+}
+json._leaseDays = leaseDurationDays;
+vCACCAFERequestsHelper.setProvisioningRequestData(provisioningRequest, JSON.stringify(json));
+
+request = System.getModule("com.vmware.library.vcaccafe.request").requestCatalogItemWithProvisioningRequest(item, provisioningRequest);]]></script>
+    <in-binding>
+      <bind name="item" type="vCACCAFE:CatalogItem" export-name="item"/>
+      <bind name="requestReason" type="string" export-name="requestReason"/>
+      <bind name="requestDescription" type="string" export-name="requestDescription"/>
+      <bind name="assignToUser" type="string" export-name="assignToUser"/>
+      <bind name="leaseDurationDays" type="number" export-name="leaseDurationDays"/>
+      <bind name="cpuCount" type="number" export-name="cpuCount"/>
+      <bind name="memorySize" type="number" export-name="memorySize"/>
+      <bind name="component" type="string" export-name="component"/>
+      <bind name="OS" type="string" export-name="OS"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.90909090909091" x="365.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Choose the VM Parameter]]></title>
+      <p-group>
+        <title><![CDATA[T-Shirt sized VM]]></title>
+        <p-param name="OS">
+          <desc><![CDATA[OS]]></desc>
+          <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#OSList]]></p-qual>
+        </p-param>
+        <p-param name="Size">
+          <desc><![CDATA[Size]]></desc>
+          <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#SizeList]]></p-qual>
+        </p-param>
+        <p-param name="Department">
+          <desc><![CDATA[Department]]></desc>
+          <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#DepartmentList]]></p-qual>
+        </p-param>
+        <p-param name="VMs">
+          <desc><![CDATA[VMs]]></desc>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

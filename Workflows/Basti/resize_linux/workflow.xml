@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="2d8ce32f-1cbf-4d82-9934-375db884e628" editor-version="2.0" version="0.0.1" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>resize_linux</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine"/>
+        <param name="disk_name" type="string"/>
+        <param name="increase_size" type="number"/>
+    </input>
+    <output/>
+    <attrib name="username" type="string">
+        <value encoded="n">root</value>
+    </attrib>
+    <attrib name="password" type="SecureString">
+        <value encoded="n">8BG56Y4DZ77U61Q72V65S31O21WF591662K21C1D26LF688689PBDBE704MB9333FCU616590DYBB21DFBI4A59AC5W8C04EE7JE1249DNFEBE5ACVFF0E24ATBE40C6R46CE2BFPEB35015UF983D2DL50B26C6YA810629JDB13A8FOB49A44AWE565183I78D8781WB20F3B7L2283A5FL</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="580.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item3" type="task" comparator="0">
+        <display-name>Resize vCenter VM</display-name>
+        <script encoded="false">//Resize Disk&#13;
+var devices = vm.config.hardware.device;&#13;
+var search_disk = disk_name.split('-');&#13;
+System.log("Manipulate disk: " + search_disk[0]);&#13;
+&#13;
+for (i in devices){&#13;
+    if (devices[i].DeviceInfo.Label.indexOf(search_disk[0]) &gt;= 0){&#13;
+        var newSizeKB = devices[i].capacityInKB + (increase_size * 1024 * 1024)&#13;
+        System.log("New Size KB = " + newSizeKB)    &#13;
+    //increase disk size&#13;
+        devices[i].capacityInKB = newSizeKB;&#13;
+    //Add disk to devicespec and devicespec to configspec&#13;
+        var deviceSpec = new VcVirtualDeviceConfigSpec();&#13;
+        deviceSpec.operation = VcVirtualDeviceConfigSpecOperation.edit;&#13;
+        deviceSpec.device = devices[i];&#13;
+        var deviceConfigSpecs = new Array();&#13;
+        deviceConfigSpecs.push(deviceSpec);&#13;
+        var configSpec = new VcVirtualMachineConfigSpec();&#13;
+        configSpec.deviceChange = deviceConfigSpecs;&#13;
+    //Actual Task creation and execute-WaitTaskEnd&#13;
+        reconfigTask = vm.reconfigVM_Task(configSpec);&#13;
+        System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(reconfigTask, false, 5);&#13;
+    } &#13;
+}</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+            <bind name="disk_name" type="string" export-name="disk_name"/>
+            <bind name="increase_size" type="number" export-name="increase_size"/>
+        </in-binding>
+        <out-binding/>
+        <description>Resize Linux</description>
+        <position y="60.0" x="160.0"/>
+    </workflow-item>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="170.0" x="320.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item4" alt-out-name="item5" type="custom-condition" comparator="0">
+        <display-name>Which OS?</display-name>
+        <script encoded="false">//Is VM Linux?&#13;
+if(vm.guestOS.indexOf("Ubuntu")){&#13;
+    return true;&#13;
+}&#13;
+else{&#13;
+    //Assume Windows for now&#13;
+    return false;&#13;
+}</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <out-binding/>
+        <description>Custom decision based on a custom script.</description>
+        <position y="50.0" x="280.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item0" type="task" comparator="0">
+        <display-name>Resize Linux</display-name>
+        <script encoded="false">// New SSH session to resize sda2 &amp; sda5&#13;
+//get IP:&#13;
+System.log("VM IP Address: " + vm.summary.guest.ipAddress);&#13;
+var host = vm.summary.guest.ipAddress;&#13;
+var session = new SSHSession(host, username) ;&#13;
+&#13;
+// Connect with password&#13;
+session.connectWithPassword(password);&#13;
+&#13;
+// Execute command&#13;
+var cmd = "parted -s /dev/sda resizepart 2 100% &amp;&amp; parted -s /dev/sda resizepart 5 100%;";&#13;
+System.log("Executing: '"+cmd+"'");&#13;
+session.executeCommand( cmd, true );&#13;
+System.log(session.getOutput());&#13;
+&#13;
+//Disconnect&#13;
+session.disconnect();&#13;
+&#13;
+//reboot and wait for tools - necessary to load partition table&#13;
+System.log("Reboot and wait for Tools...");&#13;
+vm.rebootGuest();&#13;
+//sleep 3 minutes&#13;
+System.sleep(1000*60*1);&#13;
+System.getModule("com.vmware.library.vc.vm.tools").vim3WaitForPrincipalIP(vm,5,5);&#13;
+&#13;
+// Connect again with password&#13;
+session.connectWithPassword(password);&#13;
+&#13;
+// Execute command&#13;
+var cmd = "pvresize /dev/sda5 &amp;&amp; lvextend -r -l +100%FREE /dev/ubuntu1604temp-vg/root;";&#13;
+System.log("Executing: '"+cmd+"'");&#13;
+session.executeCommand( cmd, true );&#13;
+System.log(session.getOutput());&#13;
+&#13;
+//Disconnect&#13;
+session.disconnect();</script>
+        <in-binding>
+            <bind name="password" type="SecureString" export-name="password"/>
+            <bind name="username" type="string" export-name="username"/>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item2" type="task" comparator="0">
+        <display-name>Resize Windows</display-name>
+        <script encoded="false">//Dummy Task for now.</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="120.0" x="280.0"/>
+    </workflow-item>
+    <presentation/>
+</ns2:workflow>

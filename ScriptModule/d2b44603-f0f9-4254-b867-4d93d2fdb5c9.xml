@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVCACVirtualMachineByName" result-type="vCAC:VirtualMachine" api-version="6.0.0" id="d2b44603-f0f9-4254-b867-4d93d2fdb5c9" version="0.0.1" allowed-operations="evf" category-name="com.vmware.pso.bayer">
+  <param n="vmName" t="string"><![CDATA[Virtual machine name]]></param>
+  <script encoded="false"><![CDATA[var vcacVM;
+var vCACVms = Server.findAllForType("vCAC:VirtualMachine", "VirtualMachineName eq '" + vmName + "'");
+
+if(vCACVms != null && vCACVms.length != 0){
+	vcacVM = vCACVms[0];	
+}
+else{
+	System.error("No vCAC virtual machine found with name " + vmName);
+	throw "No vCAC virtual machine found with name " + vmName;
+}
+
+return vcacVM;]]></script>
+</dunes-script-module>

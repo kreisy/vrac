@@ -1,0 +1,808 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="fc55529b-b933-4e2c-9570-ba98517cf8a1" version="4.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[TEST_TNG_DatacentreVmAuditReport]]></display-name>
+  <description><![CDATA[VM audit report for all VMs within a datacentre.
+- Will find all VMs within environment
+- Filter exceptions out of the list
+- Find various information on each VM
+    - What information can be customized
+-Email the report as a CSV attachment]]></description>
+  <position y="27.227272727272727" x="45.0"/>
+  <input>
+    <param name="debugOutput" type="boolean">
+      <description><![CDATA[Do you want to debug the output]]></description>
+    </param>
+    <param name="exception1" type="string">
+      <description><![CDATA[VM name to exclude]]></description>
+    </param>
+    <param name="exception2" type="string">
+      <description><![CDATA[VM name to exclude]]></description>
+    </param>
+    <param name="exception3" type="string">
+      <description><![CDATA[VM name to exclude]]></description>
+    </param>
+    <param name="exception4" type="string">
+      <description><![CDATA[VM name to exclude]]></description>
+    </param>
+    <param name="exception5" type="string">
+      <description><![CDATA[VM name to exclude]]></description>
+    </param>
+    <param name="toAddress" type="string">
+      <description><![CDATA[Email address to mail report]]></description>
+    </param>
+    <param name="exceptionsRequired" type="boolean">
+      <description><![CDATA[Are exceptions required to filter results]]></description>
+    </param>
+    <param name="showFQDN" type="boolean">
+      <description><![CDATA[Show FQDN in report]]></description>
+    </param>
+    <param name="showVmName" type="boolean">
+      <description><![CDATA[Show VM name in report]]></description>
+    </param>
+    <param name="showPowerState" type="boolean">
+      <description><![CDATA[Show VM power state in report]]></description>
+    </param>
+    <param name="showToolsStatus" type="boolean">
+      <description><![CDATA[Show VMtools status in report]]></description>
+    </param>
+    <param name="showToolsRunning" type="boolean">
+      <description><![CDATA[Show VMtools operational state]]></description>
+    </param>
+    <param name="showVmOs" type="boolean">
+      <description><![CDATA[Show VM OS in report]]></description>
+    </param>
+    <param name="showHardwareVersion" type="boolean">
+      <description><![CDATA[Show VM hardware version in report]]></description>
+    </param>
+    <param name="showCluster" type="boolean">
+      <description><![CDATA[Show ESXi cluster the VM resides on in the report]]></description>
+    </param>
+    <param name="showHost" type="boolean">
+      <description><![CDATA[Show the ESXi host the VM resides on in the report]]></description>
+    </param>
+    <param name="showFolderPath" type="boolean">
+      <description><![CDATA[Show the VM folder path in the report]]></description>
+    </param>
+    <param name="showCpuCount" type="boolean">
+      <description><![CDATA[Show how many vCPU the VM has in the report]]></description>
+    </param>
+    <param name="showMemory" type="boolean">
+      <description><![CDATA[Show memroy allocated to the VM in the report]]></description>
+    </param>
+    <param name="showVmNotes" type="boolean">
+      <description><![CDATA[Show the VM notes in the report]]></description>
+    </param>
+    <param name="showProvisionedSpace" type="boolean">
+      <description><![CDATA[Show provisioned space of the VM in the report]]></description>
+    </param>
+    <param name="showCommittedSpace" type="boolean">
+      <description><![CDATA[Show committed space of the VM in the report]]></description>
+    </param>
+    <param name="showDatastore" type="boolean">
+      <description><![CDATA[Show which datastore/s the VM resides on in the report]]></description>
+    </param>
+    <param name="showVmdkSize" type="boolean">
+      <description><![CDATA[Show the provisioned VMDK size of the VM in the report]]></description>
+    </param>
+    <param name="showIpAddress" type="boolean">
+      <description><![CDATA[Show the VM IP address in the report]]></description>
+    </param>
+    <param name="customizeReport" type="boolean">
+      <description><![CDATA[Do you wan to customize the report]]></description>
+    </param>
+    <param name="showResourcePool" type="boolean">
+      <description><![CDATA[Show the VM resource pool]]></description>
+    </param>
+  </input>
+  <attrib name="vms" type="Array/VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[#{#VC:VirtualMachine#dunes://service.dunes.ch/CustomSDKObject?id='vctr-sitea.vpod.local/vm-460'&dunesName='VC:VirtualMachine'#;#VC:VirtualMachine#dunes://service.dunes.ch/CustomSDKObject?id='vctr-sitea.vpod.local/vm-461'&dunesName='VC:VirtualMachine'#;#VC:VirtualMachine#dunes://service.dunes.ch/CustomSDKObject?id='vctr-sitea.vpod.local/vm-459'&dunesName='VC:VirtualMachine'#}#]]></value>
+    <description><![CDATA[Array of all VMs within Datacentre]]></description>
+  </attrib>
+  <attrib name="vmsFiltered" type="Array/VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Array of VMs to report on]]></description>
+  </attrib>
+  <attrib name="regExpModifiers" type="string" read-only="false">
+    <value encoded="n"><![CDATA[gi]]></value>
+    <description><![CDATA[Global match, case-insensitive]]></description>
+  </attrib>
+  <attrib name="smtpHost" type="string" read-only="false">
+    <value encoded="n"><![CDATA[172.16.0.10]]></value>
+    <description><![CDATA[Should acquire for Orchestrator Mail-plugin.  Only enter to override default settings.]]></description>
+  </attrib>
+  <attrib name="smtpPort" type="string" read-only="false">
+    <value encoded="n"><![CDATA[25]]></value>
+    <description><![CDATA[Should acquire for Orchestrator Mail-plugin.  Only enter to override default settings.]]></description>
+  </attrib>
+  <attrib name="fromAddress" type="string" read-only="false">
+    <value encoded="n"><![CDATA[vra@vpod.local]]></value>
+    <description><![CDATA[Should acquire for Orchestrator Mail-plugin.  Only enter to override default settings.]]></description>
+  </attrib>
+  <attrib name="fromName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[vRA]]></value>
+    <description><![CDATA[Should acquire for Orchestrator Mail-plugin.  Only enter to override default settings.]]></description>
+  </attrib>
+  <attrib name="subject" type="string" read-only="false">
+    <value encoded="n"><![CDATA[VM Datacentre Audit Report]]></value>
+    <description><![CDATA[Email subject]]></description>
+  </attrib>
+  <attrib name="content" type="string" read-only="false">
+    <value encoded="n"><![CDATA[This report contains the Datacentre VM audit.]]></value>
+    <description><![CDATA[Content with the email]]></description>
+  </attrib>
+  <workflow-item name="item10" out-name="item11" type="task">
+    <display-name><![CDATA[CreateCSVfile]]></display-name>
+    <script encoded="false"><![CDATA[//////////////////////////////////////////////////////////////////////////////
+// CODE: Javascript															//
+// TITLE: Datacentre VM Audit Report										//
+// AUTHOR: Brandt Winchell													//
+// COLLABORATORS:  Burke Azbill(huge help), James Vandenbroek				//
+// VERSION: 3.1.0															//
+// DATE MODIFIED: May 6, 2014											//
+// PURPOSE:	Find all VMs within a Datacentre, filter out exceptions;		//
+//			report on each VM with various criteria							//
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+System.log("================================================================================================================");
+System.log("================================================================================================================");
+System.log("================================================================================================================");
+System.log("================================================================================================================");
+
+//Open the CSV file and prepare to write
+var csvFile = new FileWriter(System.getTempDirectory() + "/vm_audit_report.csv");
+csvFile.open();
+csvFile.clean();
+// Write CSV headers to file using function (writeHeader)
+csvFile.write(writeHeader());
+
+// Run function (getVmInfo) against each object in array of filtered VMs
+    for (var i=0; i<vmsFiltered.length; i++) {
+		var vm = vmsFiltered[i];
+			getVmInfo(vm);
+	}
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function writeHeader() {
+	var varHeader = "";
+	
+	if (showVmName == true) {
+		varHeader = varHeader + "VMName,";
+	}
+	if (showFQDN == true) {	
+		varHeader = varHeader + "FQDN,";
+	}
+	if (showIpAddress == true) {
+		varHeader = varHeader + "IP,";
+	}
+	if (showPowerState == true) {
+		varHeader = varHeader + "PowerState,";
+	}
+	if (showToolsStatus == true) {
+		varHeader = varHeader + "ToolsStatus,";
+	}
+	if (showToolsRunning == true) {
+		varHeader = varHeader + "ToolsRunning,";
+	}
+	if (showVmOs == true) {
+		varHeader = varHeader + "VMOS,";
+	}
+	if (showHardwareVersion == true) {
+		varHeader = varHeader + "HWversion,";
+	}
+	if (showCluster == true) {
+		varHeader = varHeader + "Cluster,";
+	}
+	if (showHost == true) {
+		varHeader = varHeader + "Host,";
+	}
+	if (showResourcePool == true) {
+		varHeader = varHeader + "Resource,";
+	}
+	if (showFolderPath == true) {
+		varHeader = varHeader + "FolderPath,";
+	}
+	if (showCpuCount == true) {
+		varHeader = varHeader + "CPU#,";
+	}
+	if (showMemory == true) {
+		varHeader = varHeader + "Mem(MB),";
+	}
+	if (showVmNotes == true) {
+		varHeader = varHeader + "Notes,";
+	}
+	if (showProvisionedSpace == true) {
+		varHeader = varHeader + "ProvisionedSpace(GB),";
+	}
+	if (showCommittedSpace == true) {
+		varHeader = varHeader + "CommittedSpace(GB),";
+	}
+	if (showDatastore == true) {
+		varHeader = varHeader + "Datastore,";
+	}
+	if (showDatastore == true && showVmdkSize == true) {
+		varHeader = varHeader + "VMDKsize(GB),";
+	}
+
+	varHeader = varHeader.replace(/,+$/, "\n"); //check if the last character is a comma and replace with end line
+	
+	return(varHeader);
+}
+///////////////////////////////////////////////////////////////////////////////
+//Function END
+//Function BEGIN
+///////////////////////////////////////////////////////////////////////////////
+function getVmInfo() {
+	if (showVmName == true) {
+		var vmName = vm.name;
+			System.log("VMname: " + vmName);
+		}
+		else {
+			var vmName = "skip";
+	}
+	if (showFQDN == true) {
+		var vmFQDN = vm.guest.hostName;
+			System.log("FQDN: " + vmFQDN);
+		}
+		else {
+			var vmFQDN = "skip";
+	}
+	if (showIpAddress == true) {
+		var vmIPaddress = vm.summary.guest.ipAddress;
+			System.log("IP: " + vmIPaddress);
+		}
+		else {
+			var vmIPaddress = "skip";
+	}
+	if (showPowerState == true) {
+		var powerState = vm.runtime.powerState.value;
+			System.log("PowerState: " + powerState);
+		}
+		else {
+			var powerState = "skip";
+	}
+	if (showToolsStatus == true) {
+		var vmToolsStatus = vm.summary.guest.toolsVersionStatus2;
+			System.log("ToolStatus: " + vmToolsStatus);
+		}
+		else {
+			var vmToolsStatus = "skip";
+	}
+	if (showToolsRunning == true) {
+		var vmToolsRunningStatus = vm.summary.guest.toolsRunningStatus;
+			System.log("ToolsState: " + vmToolsRunningStatus);
+		}
+		else {
+			var vmToolsRunningStatus = "skip";
+	}
+	if (showVmOs == true) {
+		var vmOS = vm.summary.guest.guestFullName;
+			System.log("OS: " + vmOS);
+		}
+		else {
+			var vmOS = "skip";
+	}
+	if (showHardwareVersion == true) {
+		var vmVersion = vm.config.version;
+			System.log("HWversion: " + vmVersion);
+		}
+		else {
+			var vmVersion = "skip";
+	}
+	//Get Hostname & Cluster
+		if (showHost == true) {
+			var runningHostName = vm.runtime.host.name;
+				System.log("RunningHost: " + runningHostName);
+			}
+			else {
+				var runningHostName = "skip";
+		}
+		if (showCluster == true) {
+			var hostCluster = vm.runtime.host.parent.name;
+				System.log("HostCluster: " + hostCluster);
+			}
+			else {
+				var hostCluster = "skip";
+		}
+	//Get VM ResourcePool
+		if (showResourcePool == true) {
+			var resourcePool = vm.resourcePool;
+			var resourceNames = new Array();
+			var vmResourceName = "";
+				while (resourcePool instanceof VcResourcePool) {
+					resourceNames.push(resourcePool.name);
+					resourcePool = resourcePool.parent;
+				}
+				for (i=(resourceNames.length - 1); i>=0; i--) {
+					vmResourceName += "/" + resourceNames[i];
+				}
+				System.log("VM ResourcePool: " + vmResourceName);
+			}
+			else {
+				var vmResourceName = "skip";
+		}
+	//Get VMFolder
+		if (showFolderPath == true) {
+			var parent = vm.parent;  
+			var parentNames = new Array();  
+			var vmPathName = "";  
+				while (parent instanceof VcFolder){  
+	    			parentNames.push(parent.name);  
+	    			parent = parent.parent;  
+				}  
+				for (i=(parentNames.length-1); i>=0; i--){  
+	    			vmPathName += "/"+parentNames[i];  
+				}  
+				System.log("VM Path: "+vmPathName);
+			}
+			else {
+				var vmPathName = "skip";
+		}
+	if (showCpuCount == true) {
+		var cpuCount = vm.summary.config.numCpu;
+			System.log("CPU: " + cpuCount);
+		}
+		else {
+			var cpuCount = "skip";
+	}
+	if (showMemory == true) {
+		var memoryMB = vm.summary.config.memorySizeMB;
+			System.log("Memory(MB): " + memoryMB);
+		}
+		else {
+			var memoryMB = "skip";
+	}
+	// Get VM notes
+		var notes = vm.summary.config.annotation;  
+			if (showVmNotes == true) {
+				if (notes != null){  
+	        		notes = notes.replace(new RegExp("\"", "g"), "'"); //Replace \ with '
+	        		notes = notes.replace(new RegExp(",", "g"), "&"); //Replace , with &
+					notes = notes.replace(new RegExp(" ", "g"), "^"); //Replace 'space' with ^
+					notes = notes.replace(new RegExp("\n", "g"), ";"); //Replace CR with ;
+	        			System.log("Notes: " + notes);
+					}
+				}
+				else {
+					var notes = "skip";
+			} 
+	//Get basic storage usage
+		var byteToGiga=1073741824;
+		var committedSpace = vm.summary.storage.committed;
+    	var uncommittedSpace = vm.summary.storage.uncommitted;
+    	var provisionedSpace = committedSpace + uncommittedSpace;
+    		if (showProvisionedSpace == true) {
+				provisionedSpace = System.formatNumber(provisionedSpace/byteToGiga,"0.00");
+					System.log("ProvisionsedSpace(GB): " + provisionedSpace);
+				}
+				else {
+					var provisionedSpcace = "skip";
+			}
+			if (showCommittedSpace == true) {
+				committedSpace = System.formatNumber(committedSpace/byteToGiga,"0.00");
+					System.log("Committed(GB): " + committedSpace);
+				}
+				else {
+					var committedSpace = "skip";
+			}
+	///////////////////////////////////////////////////////////
+	//Create array with initial info
+		var results = []; //Array for reported items
+		var skip = []; //Array for discarded items
+		if (vmName == "skip") {
+			skip.push(vmName);
+			}
+			else {
+				results.push(vmName);
+		}
+		
+		if (vmFQDN == "skip") {
+			skip.push(vmFQDN);
+			}
+			else {
+				results.push(vmFQDN);
+		}
+		if (vmIPaddress == "skip") {
+			skip.push(vmIPaddress);
+			}
+			else {
+				results.push(vmIPaddress);
+		}
+		if (powerState == "skip") {
+			skip.push(powerState);
+			}
+			else {
+				results.push(powerState);
+		}
+		if (vmToolsStatus == "skip") {
+			skip.push(vmToolsStatus);
+			}
+			else {
+				results.push(vmToolsStatus);
+		}
+		if (vmToolsRunningStatus == "skip") {
+			skip.push(vmToolsRunningStatus);
+			}
+			else {
+				results.push(vmToolsRunningStatus);
+		}
+		if (vmOS == "skip") {
+			skip.push(vmOS);
+			}
+			else {
+				results.push(vmOS);
+		}
+		if (vmVersion == "skip") {
+			skip.push(vmVersion);
+			}
+			else {
+				results.push(vmVersion);
+		}
+		if (hostCluster == "skip") {
+			skip.push(hostCluster);
+			}
+			else {
+				results.push(hostCluster);
+		}
+		if (runningHostName == "skip") {
+			skip.push(runningHostName);
+			}
+			else {
+				results.push(runningHostName);
+		}
+		if (vmResourceName == "skip") {
+			skip.push(vmResourceName);
+			}
+			else {
+				results.push(vmResourceName);
+		}
+		if (vmPathName == "skip") {
+			skip.push(vmPathName);
+			}
+			else {
+				results.push(vmPathName);
+		}
+		if (cpuCount == "skip") {
+			skip.push(cpuCount);
+			}
+			else {
+				results.push(cpuCount);
+		}
+		if (memoryMB == "skip") {
+			skip.push(memoryMB);
+			}
+			else {
+				results.push(memoryMB)
+		}
+		if (notes == "skip") {
+			skip.push(notes);
+			}
+			else {
+				results.push(notes);
+		}
+		if (provisionedSpace == "skip") {
+			skip.push(provisionedSpace);
+			}
+			else {
+				results.push(provisionedSpace);
+		}
+		if (committedSpace == "skip") {
+			skip.push(committedSpace);
+			}
+			else {
+				results.push(committedSpace);
+		}
+	///////////////////////////////////////////////////////////
+	//Get Datastores, space consumed, and add to end of array
+		var datastoresProp = new Properties();
+		var diskSizes = new Array();
+		var devices = vm.config.hardware.device;
+		var j = 0;
+			if (showDatastore == true) {
+				for (var i in devices) {
+					if (devices[i] instanceof VcVirtualDisk) {
+						var datastore = VcPlugin.convertToVimManagedObject(vm , devices[i].backing.datastore)
+						if (showVmdkSize == true) {
+							diskSizes[j++] = devices[i].capacityInKB / 1048576;
+							var vmdkSize = Math.round(devices[i].capacityInKB / 1048576);					
+							datastoresProp.put(datastore, vmdkSize);
+							results.push(datastore.name, vmdkSize);
+							System.log("DiskSizes: " + diskSizes);
+							System.log("VMDKSize: " + vmdkSize);
+						} else {
+							datastoresProp.put(datastore);
+							results.push(datastore.name);
+						}
+						System.log("DatastoreID: " + datastore.id);
+						System.log("DatastoreName: " + datastore.name);
+					}
+				}
+			}
+	if (debugOutput == true) {
+		System.log("Results to write:" + results);
+	}
+	System.log("=======================================NEXT==================================");
+	//Write results and add next line 
+		csvFile.write(results + "\n");
+}
+///////////////////////////////////////////////////////////////////////////////
+//Function END
+System.log("=============================================LOOP-END===========================================================");
+System.log("=============================================LOOP-END===========================================================");
+System.log("=============================================LOOP-END===========================================================");
+//Close CSV file
+csvFile.close();
+]]></script>
+    <in-binding>
+      <bind name="debugOutput" type="boolean" export-name="debugOutput"/>
+      <bind name="vmsFiltered" type="Array/VC:VirtualMachine" export-name="vmsFiltered"/>
+      <bind name="showFQDN" type="boolean" export-name="showFQDN"/>
+      <bind name="showCluster" type="boolean" export-name="showCluster"/>
+      <bind name="showCommittedSpace" type="boolean" export-name="showCommittedSpace"/>
+      <bind name="showCpuCount" type="boolean" export-name="showCpuCount"/>
+      <bind name="showDatastore" type="boolean" export-name="showDatastore"/>
+      <bind name="showFolderPath" type="boolean" export-name="showFolderPath"/>
+      <bind name="param1" type="boolean" export-name="showFQDN"/>
+      <bind name="showHardwareVersion" type="boolean" export-name="showHardwareVersion"/>
+      <bind name="showHost" type="boolean" export-name="showHost"/>
+      <bind name="showMemory" type="boolean" export-name="showMemory"/>
+      <bind name="showPowerState" type="boolean" export-name="showPowerState"/>
+      <bind name="showProvisionedSpace" type="boolean" export-name="showProvisionedSpace"/>
+      <bind name="showToolsRunning" type="boolean" export-name="showToolsRunning"/>
+      <bind name="showToolsStatus" type="boolean" export-name="showToolsStatus"/>
+      <bind name="showVmdkSize" type="boolean" export-name="showVmdkSize"/>
+      <bind name="showVmName" type="boolean" export-name="showVmName"/>
+      <bind name="showVmNotes" type="boolean" export-name="showVmNotes"/>
+      <bind name="showVmOs" type="boolean" export-name="showVmOs"/>
+      <bind name="showIpAddress" type="boolean" export-name="showIpAddress"/>
+      <bind name="showResourcePool" type="boolean" export-name="showResourcePool"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Find various variables against each VM
+-(VMname, IPaddress, FQDN, Datastore, Host, etc...)
+Create a CSV file]]></description>
+    <position y="37.22727272727273" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item2" type="task">
+    <display-name><![CDATA[SendCSVEmail]]></display-name>
+    <script encoded="false"><![CDATA[var message = new EmailMessage();
+ // Override default settings if and only if input parameter is set
+	if ( smtpHost != null && smtpHost.length > 0 ){
+	    message.smtpHost = smtpHost;
+	}
+	if ( smtpPort != null && smtpPort > 0 ){
+	    message.smtpPort = smtpPort;
+	}
+	if ( fromName != null && fromName.length > 0){
+	    message.fromName = fromName;
+	}
+	if ( fromAddress != null && fromAddress.length > 0){
+	    message.fromAddress = fromAddress;
+	}
+message.toAddress = toAddress;
+message.subject = subject;
+message.addMimePart(content,"text/html; charset=UTF-8");
+//Create Attachment
+	var fileAttachment = new MimeAttachment(System.getTempDirectory() + "/vm_audit_report.csv");
+	fileAttachment.name = "vm_audit_report.csv";
+	message.addMimePart(fileAttachment, fileAttachment.mimeType);
+ System.log( "sending mail to host: " + message.smtpHost + ":" + message.smtpPort + " with user:" + message.username + ", from:" + message.fromAddress + ", to:" + message.toAddress );
+ message.sendMessage();]]></script>
+    <in-binding>
+      <bind name="toAddress" type="string" export-name="toAddress"/>
+      <bind name="smtpHost" type="string" export-name="smtpHost"/>
+      <bind name="fromAddress" type="string" export-name="fromAddress"/>
+      <bind name="fromName" type="string" export-name="fromName"/>
+      <bind name="subject" type="string" export-name="subject"/>
+      <bind name="content" type="string" export-name="content"/>
+      <bind name="smtpPort" type="string" export-name="smtpPort"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Send the CSV file via email attachment]]></description>
+    <position y="37.22727272727273" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item10" type="task">
+    <display-name><![CDATA[FilterArray]]></display-name>
+    <script encoded="false"><![CDATA[// Get all datastores for all vCenter connections defined for this plugin
+var vmsFiltered = new Array();
+var lostVms = new Array();
+
+// Check if the VM name matches the regexp
+for (var i in vms) {
+
+	if (exception1 != "" ) {
+		if (vms[i].name.match(exception1, regExpModifiers)) {
+			if (debugOutput == true) {
+				System.log("VMdelete1: " + vms[i].name);
+				}
+			continue; //Move onto next object in array
+		}
+	}
+	if (exception2 != "" ) {
+		if (vms[i].name.match(exception2, regExpModifiers)) {
+			if (debugOutput == true) {
+				System.log("VMdelete2: " + vms[i].name);
+				}
+			continue; //Move onto next object in array
+		}
+	}
+	if (exception3 != "" ) {
+		if (vms[i].name.match(exception3, regExpModifiers)) {
+			if (debugOutput == true) {
+				System.log("VMdelete3: " + vms[i].name);
+				}
+			continue; //Move onto next object in array
+		}
+	}
+	if (exception4 != "" ) {
+		if (vms[i].name.match(exception4, regExpModifiers)) {
+			if (debugOutput == true) {
+				System.log("VMdelete4: " + vms[i].name);
+				}
+			continue; //Move onto next object in array
+		}
+	}
+	if (exception5 != "" ) {
+		if (vms[i].name.match(exception5, regExpModifiers)) {
+			if (debugOutput == true) {
+				System.log("VMdelete5: " + vms[i].name);
+				}
+			continue; //Move onto next object in array
+		}
+	}
+
+	    System.log("VMpush: " + vms[i].name);
+		vmsFiltered.push(vms[i]); //If previous statements are false, add to array
+
+}]]></script>
+    <in-binding>
+      <bind name="vms" type="Array/VC:VirtualMachine" export-name="vms"/>
+      <bind name="exception1" type="string" export-name="exception1"/>
+      <bind name="exception2" type="string" export-name="exception2"/>
+      <bind name="exception3" type="string" export-name="exception3"/>
+      <bind name="exception4" type="string" export-name="exception4"/>
+      <bind name="exception5" type="string" export-name="exception5"/>
+      <bind name="regExpModifiers" type="string" export-name="regExpModifiers"/>
+      <bind name="debugOutput" type="boolean" export-name="debugOutput"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmsFiltered" type="Array/VC:VirtualMachine" export-name="vmsFiltered"/>
+    </out-binding>
+    <description><![CDATA[Filter out unwanted VMs like templates & Replicas]]></description>
+    <position y="37.22727272727273" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="27.227272727272727" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task" script-module="com.vmware.library.vc.vm/getAllVMs">
+    <display-name><![CDATA[getAllVMs]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm").getAllVMs() ;]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="actionResult" type="Array/VC:VirtualMachine" export-name="vms"/>
+    </out-binding>
+    <description><![CDATA[Return all the virtual machines]]></description>
+    <position y="37.22727272727273" x="124.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="toAddress">
+      <desc><![CDATA[Email address to mail report]]></desc>
+    </p-param>
+    <p-param name="exceptionsRequired">
+      <desc><![CDATA[Are exceptions required to filter results]]></desc>
+      <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[__NULL__]]></p-qual>
+    </p-param>
+    <p-param name="customizeReport">
+      <desc><![CDATA[Do you want to customize the report?]]></desc>
+    </p-param>
+    <p-step>
+      <title><![CDATA[Exceptions]]></title>
+      <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#exceptionsRequired==true]]></p-qual>
+      <p-param name="exception1">
+        <desc><![CDATA[VM name to exclude]]></desc>
+      </p-param>
+      <p-param name="exception2">
+        <desc><![CDATA[VM name to exclude]]></desc>
+      </p-param>
+      <p-param name="exception3">
+        <desc><![CDATA[VM name to exclude]]></desc>
+      </p-param>
+      <p-param name="exception4">
+        <desc><![CDATA[VM name to exclude]]></desc>
+      </p-param>
+      <p-param name="exception5">
+        <desc><![CDATA[VM name to exclude]]></desc>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Customize Report]]></title>
+      <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#customizeReport==true]]></p-qual>
+      <p-param name="showVmName">
+        <desc><![CDATA[showVmName]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showFQDN">
+        <desc><![CDATA[Show FQDN in report]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showIpAddress">
+        <desc><![CDATA[showIpAddress]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showPowerState">
+        <desc><![CDATA[showPowerState]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showToolsStatus">
+        <desc><![CDATA[showToolsStatus]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showToolsRunning">
+        <desc><![CDATA[showToolsRunning]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showVmOs">
+        <desc><![CDATA[showVmOs]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showHardwareVersion">
+        <desc><![CDATA[showHardwareVersion]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showCluster">
+        <desc><![CDATA[showCluster]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showHost">
+        <desc><![CDATA[showHost]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showResourcePool">
+        <desc><![CDATA[Show the VM resource pool]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showFolderPath">
+        <desc><![CDATA[showFolderPath]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showCpuCount">
+        <desc><![CDATA[showCpuCount]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showMemory">
+        <desc><![CDATA[showMemory]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showVmNotes">
+        <desc><![CDATA[showVmNotes]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showProvisionedSpace">
+        <desc><![CDATA[showProvisionedSpace]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showCommittedSpace">
+        <desc><![CDATA[showCommittedSpace]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showDatastore">
+        <desc><![CDATA[showDatastore]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="showVmdkSize">
+        <desc><![CDATA[showVmdkSize]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#showDatastore==true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Debug]]></title>
+      <p-param name="debugOutput">
+        <desc><![CDATA[Do you want to debug the output]]></desc>
+        <p-qual kind="static" name="defaultValue" type="boolean"><![CDATA[__NULL__]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

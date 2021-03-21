@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='086020c4-9ae4-43c0-b44c-98865e712a36'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='64dce33b-04d3-4071-a894-f3f1a0c72bdd'&dunesName='Action'&name='getvCenterVMFromCAS'&category='au.com.vmware.cas']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='b6d9c58d-0506-4b48-996d-e42739ef4ad1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='52824361-6157-488e-a81b-7845c0d2f15f'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='9daf9046-cdd7-4f0b-8724-a8e6d9ba531d'&dunesName='Action'&name='getRestHostFromConfig'&category='au.com.cs.example']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='4b880b86-2d36-4a07-bfe0-96c0114611bf'&dunesName='Action'&name='getConfigurationElementByName'&category='au.com.cs.example']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='401a9fb9-6b07-4756-a756-0d0319dbfd6b'&dunesName='Action'&name='createOp'&category='au.com.cs.example']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='39704f06-46ba-40d3-a00f-f5993cb1511b'&dunesName='Action'&name='executeOp'&category='au.com.cs.example']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD80808080808080808080808080808053C180800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='8efc8297-a1ab-4734-9f1a-c38e715a0f0d'&dunesName='Action'&name='createSnapshot'&category='com.vmware.library.vc.vm.snapshot']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='99afccd7-9fcc-4dc2-82b7-586de690364e'&dunesName='Action'&name='vim3WaitTaskEnd'&category='com.vmware.library.vc.basic']]></elm>
+<used-plugin name='VC' version='6.5.0' />
+</package>

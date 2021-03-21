@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getCatalogResourceByUserName" result-type="Array/vCACCAFE:CatalogResource" api-version="6.0.0" id="d285dad7-90b1-4164-9ba3-33da32b2cc1b" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.vcac">
+  <param n="vCACCafeHost" t="vCACCAFE:VCACHost"/>
+  <param n="userName" t="string"/>
+  <script encoded="false"><![CDATA[var service = vCACCafeHost.createCatalogClient().getCatalogConsumerResourceService();
+var filter = new Array();
+filter[0] = vCACCAFEFilterParam.substringOf("owners/ref", vCACCAFEFilterParam.string(userName));
+var query = vCACCAFEOdataQuery.query().addFilter(filter);
+ 
+return service.getResourcesList(new vCACCAFEPageOdataRequest(query));]]></script>
+</dunes-script-module>

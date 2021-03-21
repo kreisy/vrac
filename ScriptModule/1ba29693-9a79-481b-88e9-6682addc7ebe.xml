@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="deleteFwSection" result-type="void" api-version="6.0.0" id="1ba29693-9a79-481b-88e9-6682addc7ebe" version="0.0.0" allowed-operations="evf" category-name="com.vmware.se.nsx.fw">
+  <param n="restHost" t="REST:RESTHost"/>
+  <param n="sectionId" t="string"/>
+  <script encoded="false"><![CDATA[
+var request = restHost.createRequest("DELETE", "/api/4.0/firewall/globalroot-0/config/layer3sections/"+sectionId);
+request.contentType = "application/xml";
+System.log("Request URL: " + request.fullUrl);
+
+var response = request.execute();
+
+if(response.statusCode != 204) throw("Could not delete FW section ! : " + response.statusCode + "\n" + response.contentAsString);
+
+responseXml = new XML(response.contentAsString);
+System.log(responseXml);
+
+
+]]></script>
+</dunes-script-module>

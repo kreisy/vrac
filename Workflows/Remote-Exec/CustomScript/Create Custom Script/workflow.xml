@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="480a86c2-1370-458f-935a-c42c37160afc" version="0.0.2" api-version="6.0.0" allowed-operations="evf" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create Custom Script]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="script" type="string"/>
+    <param name="vcfqdn" type="string"/>
+    <param name="reboot" type="boolean"/>
+    <param name="machinename" type="string"/>
+    <param name="vc_cred_name" type="string"/>
+    <param name="template_locker_creds" type="string"/>
+  </input>
+  <output>
+    <param name="customScriptOutput" type="DynamicTypes:CustomScript.Script"/>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="400.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Create CustomScript.Script]]></display-name>
+    <script encoded="false"><![CDATA[var dtNamespace = "CustomScript";
+var dtClass = "Script";
+
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+var dtId = uuidv4()
+
+var dtProps = new Properties();
+    dtProps.put("id",dtId);
+    dtProps.put("name",dtId);
+    dtProps.put("script",script);
+    dtProps.put("vcfqdn",vcfqdn);
+    dtProps.put("reboot",reboot);
+    dtProps.put("machinename",machinename);
+    dtProps.put("vc_cred_name",vc_cred_name);
+    dtProps.put("template_locker_creds",template_locker_creds);
+
+var customScriptsConfigElement = System.getModule("com.vmware.cmbu").getConfigurationElementByPath("CustomScripts/CustomScripts");
+var actionResult = System.getModule("com.vmware.cmbu").setConfigurationElementVariable(customScriptsConfigElement,dtId,dtProps);
+
+// CustomScript = DynamicTypesManager.makeObject("CustomScripts","Scripts.Script",scriptId,scriptId);
+customScriptOutput = DynamicTypesManager.getObject(dtNamespace,dtClass,dtId);
+]]></script>
+    <in-binding>
+      <bind name="script" type="string" export-name="script"/>
+      <bind name="vcfqdn" type="string" export-name="vcfqdn"/>
+      <bind name="reboot" type="boolean" export-name="reboot"/>
+      <bind name="machinename" type="string" export-name="machinename"/>
+      <bind name="vc_cred_name" type="string" export-name="vc_cred_name"/>
+      <bind name="template_locker_creds" type="string" export-name="template_locker_creds"/>
+    </in-binding>
+    <out-binding>
+      <bind name="customScriptOutput" type="DynamicTypes:CustomScript.Script" export-name="customScriptOutput"/>
+    </out-binding>
+    <position y="60.0" x="200.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

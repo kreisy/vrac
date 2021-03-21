@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="setConfigurationElementVariable" result-type="boolean" api-version="6.0.0" id="a75025f6-9905-41bb-b594-78c17ec7fe52" version="0.0.0" allowed-operations="evf" category-name="com.vmware.cmbu">
+  <param n="configElement" t="ConfigurationElement"/>
+  <param n="variableName" t="string"/>
+  <param n="variableValue" t="Any"/>
+  <script encoded="false"><![CDATA[try {
+    System.log("Set variable " + variableName);
+	var attribute = configurationElement.getAttributeWithKey(attribute);
+}
+catch (e){
+    // Do nothing
+}
+
+if(attribute==null){
+    // Create a new one
+	configElement.setAttributeWithKey(variableName,variableValue)
+} else {
+    //
+}
+
+return true;]]></script>
+</dunes-script-module>

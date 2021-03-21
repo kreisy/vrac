@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="9446f421-edc9-4a14-9e7d-f6f4d510e218" editor-version="2.0" version="1.1.0" api-version="3.1.0" allowed-operations="vef" restartMode="1">
+    <display-name>cl-create ad computer</display-name>
+    <description>Creates an Active Directory computer in an organizational unit.</description>
+    <ref-types>(AD:OrganizationalUnit)</ref-types>
+    <position y="30.0" x="180.0"/>
+    <input>
+        <param name="computerName" type="string">
+            <description>Name for the new computer</description>
+        </param>
+    </input>
+    <output>
+        <param name="newComputer" type="AD:ComputerAD"/>
+    </output>
+    <attrib name="domainName" type="string">
+        <value encoded="n">vcc.vmw</value>
+    </attrib>
+    <attrib name="ou" type="AD:OrganizationalUnit">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='%23_v2_%23%2C%23OU%23%2C%2390430530-97b8-4927-9b05-baccc6a418b7%23%2C%23OU%3DVCC-User%2CDC%3Dvcc%2CDC%3Dvmw%23'&amp;dunesName='AD:OrganizationalUnit'</value>
+    </attrib>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <position y="190.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.microsoft.activeDirectory/createComputer" comparator="0">
+        <display-name>createComputer</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.microsoft.activeDirectory").createComputer(parent,computerName,domainName) ;</script>
+        <in-binding>
+            <bind name="computerName" type="string" export-name="computerName">
+                <description>Name for the new computer</description>
+            </bind>
+            <bind name="domainName" type="string" export-name="domainName">
+                <description>Domain name if provided</description>
+            </bind>
+            <bind name="parent" type="AD:OrganizationalUnit" export-name="ou">
+                <description>Parent for the new computer</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description>Create a computer in the Active Directory</description>
+        <position y="80.0" x="140.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.microsoft.activeDirectory/getComputerFromContainer" comparator="0">
+        <display-name>getComputerFromContainer</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.microsoft.activeDirectory").getComputerFromContainer(container,computerName) ;</script>
+        <in-binding>
+            <bind name="computerName" type="string" export-name="computerName">
+                <description>Name of the computer</description>
+            </bind>
+            <bind name="container" type="AD:OrganizationalUnit" export-name="ou">
+                <description>Organizationl Unit / Group</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="AD:ComputerAD" export-name="newComputer"/>
+        </out-binding>
+        <description>Gets a computer by its name in the given OU or group (container).</description>
+        <position y="140.0" x="140.0"/>
+    </workflow-item>
+    <presentation>
+        <p-step>
+            <title>Create a computer in an organizational unit</title>
+            <p-group>
+                <title>Details</title>
+                <desc>Provide a domain name if it is not the same as the default domain name.</desc>
+                <p-param name="ou">
+                    <desc>Parent organizational unit for the new computer</desc>
+                    <p-qual kind="static" name="show-select-as" type="string">drop-down</p-qual>
+                    <p-qual name="contextualParameter"></p-qual>
+                    <p-qual kind="static" name="mandatory" type="boolean">true</p-qual>
+                </p-param>
+                <p-param name="computerName">
+                    <desc>Name for the new computer</desc>
+                    <p-qual kind="static" name="mandatory" type="boolean">true</p-qual>
+                </p-param>
+                <p-param name="domainName">
+                    <desc>Domain name in form: company.sample (optional)</desc>
+                </p-param>
+            </p-group>
+        </p-step>
+    </presentation>
+</ns2:workflow>
